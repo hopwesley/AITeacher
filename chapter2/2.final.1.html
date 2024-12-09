@@ -11,7 +11,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: linear-gradient(to bottom, #1e3c72, #2a5298); /* <<<------背景渐变 */
+            background: linear-gradient(to right, #ff7e5f, #feb47b); /* 背景渐变 */
         }
 
         canvas {
@@ -24,26 +24,9 @@
     </script>
 </head>
 <body>
-
-<button id="startButton"
-        style="position: absolute; top: 50%; left: 50%;
-        transform: translate(-50%, -50%); padding: 10px 20px;
-        font-size: 16px;">
-    开始游戏
-</button>
-
-<script>
-    document.getElementById('startButton').addEventListener('click', () => {
-        console.log("----->>>游戏开始了");
-        // Start the game when the button is clicked
-        board = createBoard(ROWS, COLS);
-        tetromino = randomTetromino();
-        position = {row: 0, col: Math.floor(COLS / 2) - Math.floor(tetromino.length / 2)};
-        update();
-        document.getElementById('startButton').style.display = 'none';
-    });
-</script>
-
+<div id="scoreBoard">
+    <p>得分: <span id="score">0</span></p>
+</div>
 <canvas id="tetrisCanvas" width="320" height="640"></canvas>
 
 <script>
@@ -112,7 +95,7 @@
     let tetromino = randomTetromino();
     let position = {row: 0, col: Math.floor(COLS / 2) - Math.floor(tetromino.length / 2)};
     let dropCounter = 0;
-    let dropInterval = 1000;
+    let dropInterval = 900;
     let lastTime = 0;
 
     function createBoard(rows, cols) {
@@ -126,11 +109,37 @@
         for (let row = 0; row < board.length; row++) {
             for (let col = 0; col < board[row].length; col++) {
                 if (board[row][col]) {
-                    context.fillStyle = 'blue';
+                    context.fillStyle = '#B29069';
                     context.fillRect(col, row, 1, 1);
+
+                    // 绘制单元格边框
+                    context.strokeStyle = '#000000'; // 设置边框颜色（黑色）
+                    context.lineWidth = 0.02; // 边框宽度
+                    context.strokeRect(col, row, 1, 1); // 绘制边框
                 }
             }
         }
+    }
+
+    const COLORS = {
+        I: "#00BFFF",  // 深天蓝
+        J: "#8A2BE2",  // 蓝紫色
+        L: "#FF6347",  // 番茄色
+        O: "#FFD700",  // 金色
+        S: "#32CD32",  // 石灰绿色
+        T: "#EE82EE",  // 紫罗兰色
+        Z: "#FF4500"   // 橙红色
+    };
+
+
+    function tetrominoName(tetromino) {
+        if (tetromino === I_TETROMINO) return 'I';
+        if (tetromino === J_TETROMINO) return 'J';
+        if (tetromino === L_TETROMINO) return 'L';
+        if (tetromino === O_TETROMINO) return 'O';
+        if (tetromino === S_TETROMINO) return 'S';
+        if (tetromino === T_TETROMINO) return 'T';
+        if (tetromino === Z_TETROMINO) return 'Z';
     }
 
     function drawTetromino(tetromino, position) {
@@ -138,7 +147,14 @@
         tetromino.forEach((row, rowIndex) => {
             row.forEach((cell, cellIndex) => {
                 if (cell) {
+                    const color_name = tetromino.colorName;
+                    context.fillStyle = COLORS[color_name];
                     context.fillRect(position.col + cellIndex, position.row + rowIndex, 1, 1);
+
+                    // 绘制单元格的边界
+                    context.strokeStyle = '#000000'; // 设置边框颜色（黑色）
+                    context.lineWidth = 0.03; // 设置边框的宽度（可以调整宽度以适应你的需求）
+                    context.strokeRect(position.col + cellIndex, position.row + rowIndex, 1, 1); // 绘制边框
                 }
             });
         });
@@ -154,6 +170,8 @@
         });
     }
 
+    let score = 0;
+
     function clearLines(board) {
         let linesCleared = 0;
         for (let row = board.length - 1; row >= 0;) {
@@ -165,8 +183,11 @@
                 row--;
             }
         }
-        return linesCleared;
+        score += linesCleared * 100; // 每消除一行，分数增加
+        document.getElementById('score').innerText = score; // 更新分数显示
+        return linesCleared; // 返回清除的行数
     }
+
 
     function isValidMove(board, tetromino, position) {
         for (let row = 0; row < tetromino.length; row++) {
@@ -219,13 +240,30 @@
         if (!isValidMove(board, tetromino, position)) {
             position.row--;
             mergeBoard(board, tetromino, position);
-            clearLines(board);
+            const linesCleared = clearLines(board); // 返回清除的行数
+
+            if (linesCleared > 0) {
+                clearSound.play(); // 播放消除行音效
+            } else {
+                dropSound.play(); // 播放下落音效
+            }
+
             tetromino = randomTetromino();
             position = {row: 0, col: Math.floor(COLS / 2) - Math.floor(tetromino.length / 2)};
 
             if (!isValidMove(board, tetromino, position)) {
-                alert('Game Over!');
-                board = createBoard(ROWS, COLS);
+                const playSound = new Promise((resolve) => {
+                    gameOverSound.play();
+                    resolve();
+                });
+
+                // 在 Promise 完成后执行其它操作
+                playSound.then(() => {
+                    alert('Game Over! Score: ' + score);  // 显示消息
+                    board = createBoard(ROWS, COLS);
+                    score = 0;
+                    document.getElementById('score').innerText = score; // 更新分数显示
+                });
             }
         }
     }
@@ -244,10 +282,18 @@
         }
     }
 
+
+    const rotateSound = new Audio('rotate_sound.wav');
+    const dropSound = new Audio('drop_sound.wav');
+    const clearSound = new Audio('clear_sound.wav');
+    const gameOverSound = new Audio('game_over.wav');
+
     function rotateTetromino() {
         const rotated = rotateMatrix(tetromino);
+        rotated.colorName = tetromino.colorName;
         if (isValidMove(board, rotated, position)) {
             tetromino = rotated;
+            rotateSound.play(); // 播放旋转音效
         }
     }
 
@@ -264,10 +310,12 @@
     });
 
     function randomTetromino() {
-        return TETROMINOS[Math.floor(Math.random() * TETROMINOS.length)];
+        const obj = TETROMINOS[Math.floor(Math.random() * TETROMINOS.length)];
+        obj.colorName = tetrominoName(obj);
+        return obj;
     }
 
-    // update();//<<<<------ 注释掉此处即可
+    update();
 </script>
 </body>
 </html>
