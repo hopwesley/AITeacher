@@ -31,10 +31,25 @@
         <li>↓ 键：方块快速下落</li>
         <li>↑ 键：旋转方块</li>
     </ul>
+    <h3>分数：<span id="score">0</span></h3>
 </div>
 
 <canvas id="tetrisCanvas" width="320" height="640"></canvas>
 <script>
+
+    //------>>>定义颜色并随机选择
+    const COLORS = ['red', 'blue', 'green', 'yellow'];
+    let randomColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+
+    let isPaused = false; // 初始化暂停状态
+    let score = 0; // 初始化分数
+
+    function updateScore(linesCleared) {
+        score += linesCleared * 10; // 每消除一行，分数加 10
+        document.getElementById('score').innerText = score; // 更新 HTML 中的分数显示
+    }
+
+
     const canvas = document.getElementById('tetrisCanvas');
     const context = canvas.getContext('2d');
 
@@ -122,7 +137,8 @@
     }
 
     function drawTetromino(tetromino, position) {
-        context.fillStyle = 'red';
+        //------>>>设置方块的颜色
+        context.fillStyle = randomColor;
         tetromino.forEach((row, rowIndex) => {
             row.forEach((cell, cellIndex) => {
                 if (cell) {
@@ -152,6 +168,9 @@
             } else {
                 row--;
             }
+        }
+        if (linesCleared > 0) {
+            updateScore(linesCleared); // 调用函数更新分数
         }
         return linesCleared;
     }
@@ -187,6 +206,12 @@
     }
 
     function update(time = 0) {
+
+        if (isPaused) {
+            requestAnimationFrame(update);
+            return; // 如果暂停，停止更新
+        }
+
         const deltaTime = time - lastTime;
         lastTime = time;
 
@@ -210,7 +235,7 @@
             clearLines(board);
             tetromino = randomTetromino();
             position = {row: 0, col: Math.floor(COLS / 2) - Math.floor(tetromino.length / 2)};
-
+            randomColor = COLORS[Math.floor(Math.random() * COLORS.length)]; //----->>> 随机生成新的颜色
             if (!isValidMove(board, tetromino, position)) {
                 alert('Game Over!');
                 board = createBoard(ROWS, COLS);
@@ -248,6 +273,8 @@
             moveDown();
         } else if (event.key === 'ArrowUp') {
             rotateTetromino();
+        } else if (event.key === 'p' || event.key === 'P') {
+            isPaused = !isPaused;
         }
     });
 

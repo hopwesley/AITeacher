@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的俄罗斯方块游戏</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<h1>俄罗斯方块游戏</h1>
+<p>按下“开始游戏”按钮来开始游戏。</p>
+
+<ul style="display: inline-block; text-align: left;">
+    <li>← 键：方块左移</li>
+    <li>→ 键：方块右移</li>
+    <li>↓ 键：方块快速下落</li>
+    <li>↑ 键：旋转方块</li>
+</ul>
+
+<br>
+<button onclick="startGame()">开始游戏</button>
+<br><br>
+
+<canvas id="tetrisCanvas" width="320" height="640"></canvas>
+
+<script>
+    function startGame() {
+        alert('游戏开始！');
+    }
+</script>
+</body>
+</html>
