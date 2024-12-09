@@ -13,20 +13,42 @@
 </head>
 <body>
 <h1>俄罗斯方块游戏</h1>
-<p>按下“开始游戏”按钮来开始游戏。</p>
 
-<ul style="display: inline-block; text-align: left;">
-    <li>← 键：方块左移</li>
-    <li>→ 键：方块右移</li>
-    <li>↓ 键：方块快速下落</li>
-    <li>↑ 键：旋转方块</li>
-</ul>
+<div id="app" style="display: flex; justify-content: center; align-items: flex-start; gap: 40px; margin-top: 20px;">
+    <!-- 操作说明在左边 -->
+    <div id="operation" style="text-align: left;">
+        <p>按下“开始游戏”按钮来开始游戏。</p>
+        <ul style="list-style-type: none; padding: 0;">
+            <li>← 键：方块左移</li>
+            <li>→ 键：方块右移</li>
+            <li>↓ 键：方块快速下落</li>
+            <li>↑ 键：旋转方块</li>
+        </ul>
+    </div>
 
-<br>
-<button onclick="startGame()">开始游戏</button>
-<br><br>
+    <!-- 游戏画布和信息面板在右边 -->
+    <div style="display: flex; justify-content: center; align-items: flex-start; gap: 40px;">
+        <!-- 游戏画布 -->
+        <canvas id="tetrisCanvas" width="320" height="640" style="border: 1px solid black;"></canvas>
 
-<canvas id="tetrisCanvas" width="320" height="640"></canvas>
+        <!-- 信息面板和按钮面板 -->
+        <div>
+            <!-- 信息面板 -->
+            <div style="margin-bottom: 20px;">
+                <h3>分数：<span id="score">0</span></h3>
+                <h3>等级：<span id="level">1</span></h3>
+                <h3>下一个方块：</h3>
+                <canvas id="nextBlockCanvas" width="100" height="100" style="border: 1px solid black;"></canvas>
+            </div>
+
+            <!-- 按钮面板 -->
+            <div id="buttonPanel" style="text-align: center;">
+                <button id="startButton" onclick="startGame()">开始游戏</button>
+                <button id="pauseButton">暂停游戏</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     function startGame() {
