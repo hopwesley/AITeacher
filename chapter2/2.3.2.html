@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的俄罗斯方块游戏</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            font-size: 48px;
+            color: #003366;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #007BFF;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        #operation p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        #operation ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #operation li {
+            font-size: 16px;
+            color: #333;
+            margin: 8px 0;
+            position: relative;
+            padding-left: 24px;
+        }
+
+        #operation li::before {
+            content: "➤";
+            color: #007BFF;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        #tetrisCanvas {
+            border: 4px solid #333;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #nextBlockCanvas {
+            border: 2px solid #555;
+            background-color: #e6e6e6;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        #app {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 60px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+<h1>俄罗斯方块游戏</h1>
+
+<div id="app">
+    <div id="operation">
+        <p>按下“开始游戏”按钮来开始游戏。</p>
+        <ul>
+            <li>← 键：方块左移</li>
+            <li>→ 键：方块右移</li>
+            <li>↓ 键：方块快速下落</li>
+            <li>↑ 键：旋转方块</li>
+        </ul>
+    </div>
+    <canvas id="tetrisCanvas" width="320" height="640"></canvas>
+    <div>
+        <div style="margin-top: 20px;">
+            <h3>分数：<span id="score">0</span></h3>
+            <h3>等级：<span id="level">1</span></h3>
+            <h3>下一个方块：</h3>
+            <canvas id="nextBlockCanvas" width="100" height="100"></canvas>
+        </div>
+
+        <div id="buttonPanel" style="margin-top: 20px;">
+            <button id="startButton" onclick="startGame()">开始游戏</button>
+            <button id="pauseButton">暂停游戏</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function startGame() {
+        alert('游戏开始！');
+    }
+</script>
+</body>
+</html>
