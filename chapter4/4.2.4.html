@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #game-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        #operation,
+        #info-panel {
+            width: 150px;
+            padding: 10px;
+            background-color: lightgray;
+            text-align: center;
+        }
+
+        #tetrisCanvas {
+            border: 2px solid black;
+        }
+
+        @media (max-width: 600px) {
+            #game-container {
+                flex-direction: column; /* 改为垂直堆叠 */
+                align-items: center; /* 居中对齐 */
+            }
+
+            #operation,
+            #info-panel {
+                width: 100%; /* 宽度填满屏幕 */
+                margin-bottom: 10px; /* 添加底部间距 */
+            }
+
+            #tetrisCanvas {
+                width: 100%; /* 让画布自适应宽度 */
+                height: auto; /* 保持画布高度比例 */
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="game-container">
+    <div id="operation">操作说明</div>
+    <canvas id="tetrisCanvas" width="320" height="640"></canvas>
+    <div id="info-panel">分数与等级</div>
+</div>
+
+</body>
+</html>

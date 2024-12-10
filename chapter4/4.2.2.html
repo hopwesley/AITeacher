@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #game-container {
+            position: relative;
+            display: flex;
+            gap: 20px;
+        }
+
+        .box {
+            padding: 10px;
+            border: 2px solid black;
+            background-color: lightgray;
+        }
+
+        #pause-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="game-container">
+    <div id="operation" class="box">操作说明</div>
+    <canvas id="tetrisCanvas" width="320" height="640" class="box"></canvas>
+    <button id="pause-button">暂停游戏</button>
+</div>
+</body>
+</html>

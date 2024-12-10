@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <style>
+    .game-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .operation-panel,
+    .info-panel {
+      width: 150px;
+      padding: 10px;
+      background-color: lightgray;
+      text-align: center;
+    }
+
+    .game-canvas {
+      border: 2px solid black;
+    }
+
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="operation-panel">操作说明</div>
+  <canvas class="game-canvas" width="320" height="640"></canvas>
+  <div class="info-panel">分数与等级</div>
+</div>
+
+</body>
+</html>

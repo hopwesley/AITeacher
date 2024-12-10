@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <style>
+    .game-container {
+      display: grid;
+      grid-template-columns: 150px 320px 150px;
+      grid-template-rows: auto 1fr;
+      gap: 20px;
+    }
+
+    .header {
+      grid-column: 1 / 4; /* 跨越所有列 */
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .operation-panel,
+    .info-panel {
+      background-color: lightgray;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .game-canvas {
+      border: 2px solid black;
+    }
+
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">俄罗斯方块游戏</div>
+  <div class="operation-panel">操作说明</div>
+  <canvas class="game-canvas" width="320" height="640"></canvas>
+  <div class="info-panel">分数与等级</div>
+</div>
+
+</body>
+</html>

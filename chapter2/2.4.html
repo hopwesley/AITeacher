@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的俄罗斯方块游戏</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            font-size: 48px;
+            color: #003366;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #007BFF;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        #operation p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        #operation ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #operation li {
+            font-size: 16px;
+            color: #333;
+            margin: 8px 0;
+            position: relative;
+            padding-left: 24px;
+        }
+
+        #operation li::before {
+            content: "➤";
+            color: #007BFF;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        #tetrisCanvas {
+            border: 4px solid #333;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #nextBlockCanvas {
+            border: 2px solid #555;
+            background-color: #e6e6e6;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        #app {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 60px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+<h1>俄罗斯方块游戏</h1>
+
+<div id="app">
+    <div id="operation">
+        <p>按下“开始游戏”按钮来开始游戏。</p>
+        <ul>
+            <li>← 键：方块左移</li>
+            <li>→ 键：方块右移</li>
+            <li>↓ 键：方块快速下落</li>
+            <li>↑ 键：旋转方块</li>
+        </ul>
+    </div>
+    <canvas id="tetrisCanvas" width="320" height="640"></canvas>
+    <div>
+        <div style="margin-top: 20px;">
+            <h3>分数：<span id="score">0</span></h3>
+            <h3>等级：<span id="level">1</span></h3>
+            <h3>下一个方块：</h3>
+            <canvas id="nextBlockCanvas" width="100" height="100"></canvas>
+        </div>
+
+        <div id="buttonPanel" style="margin-top: 20px;">
+            <button id="startButton">开始游戏</button>
+            <button id="pauseButton">暂停游戏</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const canvas = document.getElementById('tetrisCanvas');
+    const context = canvas.getContext('2d');
+    const BLOCK_SIZE = 32;
+
+    // 初始化游戏板（20行 × 10列）
+    const ROWS = 20;
+    const COLS = 10;
+    let board = createBoard(ROWS, COLS);
+
+    // 定义方块的初始位置
+    let position = {row: 0, col: 4};
+
+    // 示例方块：T形方块
+    let currentBlock = [
+        [0, 1, 0],
+        [1, 1, 1],
+        [0, 0, 0]
+    ];
+
+    // 创建一个空白的游戏板
+    function createBoard(rows, cols) {
+        return Array.from({length: rows}, () => Array(cols).fill(0));
+    }
+
+    // 绘制游戏板和方块
+    function drawBoard() {
+        context.clearRect(0, 0, canvas.width, canvas.height); // 清除画布
+
+        // 绘制游戏板上的方块
+        for (let row = 0; row < ROWS; row++) {
+            for (let col = 0; col < COLS; col++) {
+                if (board[row][col]) {
+                    context.fillStyle = 'gray';
+                    context.fillRect(col * BLOCK_SIZE, row * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                    context.strokeRect(col * BLOCK_SIZE, row * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                }
+            }
+        }
+
+        // 绘制当前方块
+        context.fillStyle = 'blue';
+        currentBlock.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+                if (cell) {
+                    context.fillRect((position.col + colIndex) * BLOCK_SIZE, (position.row + rowIndex) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                    context.strokeRect((position.col + colIndex) * BLOCK_SIZE, (position.row + rowIndex) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                }
+            });
+        });
+    }
+
+    // 方块移动函数
+    function moveLeft() {
+        position.col--;
+        if (!isValidMove(board, currentBlock, position)) {
+            position.col++;
+        }
+        drawBoard();
+    }
+
+    function moveRight() {
+        position.col++;
+        if (!isValidMove(board, currentBlock, position)) {
+            position.col--;
+        }
+        drawBoard();
+    }
+
+    function moveDown() {
+        position.row++;
+        if (!isValidMove(board, currentBlock, position)) {
+            position.row--;
+        }
+        drawBoard();
+    }
+
+    // 旋转方块函数
+    function rotateMatrix(matrix) {
+        const N = matrix.length;
+        const result = [];
+        for (let i = 0; i < N; i++) {
+            result.push([]);
+            for (let j = 0; j < N; j++) {
+                result[i][j] = matrix[N - j - 1][i];
+            }
+        }
+        return result;
+    }
+
+    function rotateBlock() {
+        const rotatedBlock = rotateMatrix(currentBlock);
+        if (isValidMove(board, rotatedBlock, position)) {
+            currentBlock = rotatedBlock;
+        }
+        drawBoard();
+    }
+
+    // 辅助函数：检查移动是否合法
+    function isValidMove(board, block, position) {
+        for (let row = 0; row < block.length; row++) {
+            for (let col = 0; col < block[row].length; col++) {
+                if (
+                    block[row][col] &&
+                    (position.col + col < 0 ||
+                        position.col + col >= COLS ||
+                        position.row + row >= ROWS ||
+                        board[position.row + row][position.col + col])
+                ) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // 监听键盘事件
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowLeft') {
+            moveLeft();
+        } else if (event.key === 'ArrowRight') {
+            moveRight();
+        } else if (event.key === 'ArrowDown') {
+            moveDown();
+        } else if (event.key === 'ArrowUp') {
+            rotateBlock();
+        }
+    });
+
+    // 初始绘制
+    drawBoard();
+
+</script>
+</body>
+</html>

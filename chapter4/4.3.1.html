@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <style>
+    body {
+      background-color: #2b2b2b;  /* 深灰背景 */
+      color: #ffffff;             /* 白色文字 */
+      font-family: 'Press Start 2P', cursive;
+    }
+
+    canvas {
+      border: 2px solid #ffffff;  /* 白色边框 */
+    }
+
+    button {
+      background-color: #457b9d;  /* 蓝色按钮 */
+      color: #ffffff;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1d3557;  /* 深蓝色悬停效果 */
+    }
+
+  </style>
+</head>
+<body>
+<div id="game-container">
+  <div id="operation">操作说明</div>
+  <canvas id="tetrisCanvas" width="320" height="640"></canvas>
+  <div id="info-panel">分数与等级</div>
+  <button>开始</button>
+</div>
+</body>
+</html>
