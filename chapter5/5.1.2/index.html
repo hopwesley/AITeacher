@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="俄罗斯方块游戏，体验有趣的方块消除挑战。">
+    <title>俄罗斯方块游戏</title>
+    <link href="style.css" rel="stylesheet">
+    <script src="script.js"></script>
+</head>
+<body>
+
+<header>
+    <h1>俄罗斯方块游戏</h1>
+</header>
+
+<main>
+    <!-- 游戏画布和信息面板 -->
+    <div id="game-container" class="game-container">
+        <div id="controls" class="controls">
+            <h3>操作说明</h3>
+            <ul>
+                <li>← 键：方块左移</li>
+                <li>→ 键：方块右移</li>
+                <li>↓ 键：方块快速下落</li>
+                <li>↑ 键：旋转方块</li>
+            </ul>
+            <button id="startButton">开始游戏</button>
+            <button id="pauseButton">暂停游戏</button>
+        </div>
+        <canvas id="tetrisCanvas" class="tetrisCanvas" width="320" height="640"></canvas>
+        <div id="info-panel" class="info-panel"></div>
+    </div>
+
+</main>
+
+<footer>
+    <p>&copy; 2024 俄罗斯方块游戏</p>
+</footer>
+
+</body>
+</html>
