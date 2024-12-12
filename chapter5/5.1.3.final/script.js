@@ -303,6 +303,7 @@ function drawCell(context, x, y, color) {
     context.lineWidth = 0.05;        // 边框宽度
     context.strokeRect(x, y, 1, 1);
 }
+
 function startGame() {
     board = createBoard(ROWS, COLS);        // 重置棋盘
     currentTetromino = randomTetromino();   // 生成新的方块
