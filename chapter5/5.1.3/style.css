@@ -48,11 +48,15 @@ main {
 }
 
 .controls {
-    width: 150px;
+    width: 200px;
     background-color: #ffe0b2; /* 浅暖色背景 */
     border: 1px solid #ffcc80;
     border-radius: 12px;
     padding: 15px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 将按钮在容器内水平居中 */
 }
 
 .controls h3 {
@@ -64,7 +68,7 @@ main {
     border: 2px solid #ffcc80; /* 加深边框颜色 */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* 增加阴影 */
     padding: 20px; /* 增加内边距 */
-    width: 150px;
+    width: 200px;
     text-align: center;
     border-radius: 10px; /* 圆角边框 */
     font-size: 18px; /* 调整字体大小 */
@@ -146,6 +150,7 @@ header h1 {
 }
 
 
+
 /* 小屏幕优化 */
 @media (max-height: 700px) {
     canvas#tetrisCanvas {
@@ -188,5 +193,4 @@ header h1 {
     .controls li span {
         flex-shrink: 0;        /* 防止文本压缩 */
     }
-
 }
