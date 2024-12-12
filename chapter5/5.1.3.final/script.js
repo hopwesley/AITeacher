@@ -26,7 +26,7 @@ class Tetromino {
         this.shape.forEach((row, rowIndex) => {
             row.forEach((cell, colIndex) => {
                 if (cell) {
-                    context.fillRect(this.position.col + colIndex, this.position.row + rowIndex, 1, 1);
+                    drawCell(context, this.position.col + colIndex, this.position.row + rowIndex, this.color);
                 }
             });
         });
@@ -84,13 +84,13 @@ class Tetromino {
 
 // 定义所有的方块类型和颜色
 const TETROMINOS = [
-    {shape: [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]], color: '#ff9a8b'}, // I 形 - 柔和的珊瑚色
-    {shape: [[1, 0, 0], [1, 1, 1], [0, 0, 0]], color: '#ffb482'},                         // J 形 - 柔和的橙黄色
-    {shape: [[0, 0, 1], [1, 1, 1], [0, 0, 0]], color: '#ffda77'},                         // L 形 - 柔和的黄色
-    {shape: [[1, 1], [1, 1]], color: '#ffc0cb'},                                           // O 形 - 粉色
-    {shape: [[0, 1, 1], [1, 1, 0], [0, 0, 0]], color: '#ffacb7'},                         // S 形 - 浅玫瑰红
-    {shape: [[0, 1, 0], [1, 1, 1], [0, 0, 0]], color: '#ffa07a'},                         // T 形 - 柔和的橙红色
-    {shape: [[1, 1, 0], [0, 1, 1], [0, 0, 0]], color: '#ffd1dc'}                          // Z 形 - 浅粉红色
+    {shape: [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]], color: '#FF5733'}, // I 形 - 鲜亮的橙红色
+    {shape: [[1, 0, 0], [1, 1, 1], [0, 0, 0]], color: '#33C1FF'},                         // J 形 - 明亮的蓝色
+    {shape: [[0, 0, 1], [1, 1, 1], [0, 0, 0]], color: '#FFC300'},                         // L 形 - 鲜亮的黄色
+    {shape: [[1, 1], [1, 1]], color: '#FF33A8'},                                           // O 形 - 鲜艳的粉色
+    {shape: [[0, 1, 1], [1, 1, 0], [0, 0, 0]], color: '#33FF57'},                         // S 形 - 鲜亮的绿色
+    {shape: [[0, 1, 0], [1, 1, 1], [0, 0, 0]], color: '#9B33FF'},                         // T 形 - 鲜艳的紫色
+    {shape: [[1, 1, 0], [0, 1, 1], [0, 0, 0]], color: '#FF5733'}                          // Z 形 - 鲜亮的红色
 ];
 
 
@@ -144,8 +144,7 @@ function drawBoard(board) {
     for (let row = 0; row < board.length; row++) {
         for (let col = 0; col < board[row].length; col++) {
             if (board[row][col]) {
-                context.fillStyle = board[row][col];
-                context.fillRect(col, row, 1, 1);
+                drawCell(context, col, row, board[row][col]);
             }
         }
     }
@@ -167,7 +166,7 @@ function drawNextTetromino() {
     shape.forEach((row, rowIndex) => {
         row.forEach((cell, colIndex) => {
             if (cell) {
-                nextContext.fillRect(offsetX + colIndex, offsetY + rowIndex, 1, 1);
+                drawCell(nextContext, offsetX + colIndex, offsetY + rowIndex, nextTetromino.color);
             }
         });
     });
@@ -214,24 +213,10 @@ function mergeBoard(board, shape, position) {
     shape.forEach((row, rowIndex) => {
         row.forEach((cell, cellIndex) => {
             if (cell) {
-                board[position.row + rowIndex][position.col + cellIndex] = '#d3d3d3'; // 统一灰色
+                board[position.row + rowIndex][position.col + cellIndex] = '#A9A9A9'; // 亮灰色
             }
         });
     });
-}
-
-function toggleGame() {
-    const startButton = document.getElementById('startButton');
-    gamePaused = !gamePaused;
-    changeGameStatus(startButton);
-    if (!gamePaused) {
-        if (!currentTetromino) {
-            currentTetromino = randomTetromino();
-            nextTetromino = randomTetromino();
-            drawNextTetromino();
-        }
-        update();
-    }
 }
 
 function changeGameStatus(button) {
@@ -280,25 +265,63 @@ function clearLines() {
         document.getElementById('score').textContent = score;
     }
 }
+
 function resetGame() {
-    alert('Game Over!');
-    gamePaused = true; // 暂停游戏
+    // 显示自定义对话框
+    const gameOverDialog = document.getElementById('gameOverDialog');
+    gameOverDialog.style.display = 'flex';
+
+    // 暂停游戏
+    gamePaused = true;
+    changeGameStatus(document.getElementById('startButton')); // 统一按钮状态
 
     // 清空主画布和下一个方块画布
-    context.clearRect(0, 0, tetrisCanvas.width, tetrisCanvas.height);
-    nextContext.clearRect(0, 0, nextTetromino.width, nextTetromino.height);
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    nextContext.clearRect(0, 0, nextContext.canvas.width, nextContext.canvas.height);
 
-    // 重置棋盘
-    board = createBoard(ROWS, COLS);
+    // 添加重新开始和取消按钮的事件监听
+    const restartButton = document.getElementById('restartButton');
+    const cancelButton = document.getElementById('cancelButton');
 
-    // 重置按钮状态
+    restartButton.onclick = () => {
+        gameOverDialog.style.display = 'none'; // 隐藏对话框
+        startGame();                            // 调用统一的开始游戏逻辑
+    };
+
+    cancelButton.onclick = () => {
+        gameOverDialog.style.display = 'none'; // 隐藏对话框
+    };
+}
+
+
+function drawCell(context, x, y, color) {
+    context.fillStyle = color;
+    context.fillRect(x, y, 1, 1);
+
+    // 绘制边框
+    context.strokeStyle = '#333333'; // 深灰色边框
+    context.lineWidth = 0.05;        // 边框宽度
+    context.strokeRect(x, y, 1, 1);
+}
+function startGame() {
+    board = createBoard(ROWS, COLS);        // 重置棋盘
+    currentTetromino = randomTetromino();   // 生成新的方块
+    nextTetromino = randomTetromino();
+    drawNextTetromino();                    // 更新下一个方块预览
+    score = 0;                              // 重置分数
+    document.getElementById('score').textContent = score;
+    gamePaused = false;                     // 重新开始游戏
+    changeGameStatus(document.getElementById('startButton'));
+    update();
+}
+
+
+function toggleGame() {
     const startButton = document.getElementById('startButton');
-    startButton.textContent = '开始游戏';
-    startButton.classList.remove('pauseButton');
-    startButton.classList.add('startButton');
-
-    // 清空当前和下一个方块
-    currentTetromino = null;
-    nextTetromino = null;
-    drawNextTetromino(); // 确保清空下一个方块的画布
+    if (gamePaused) {
+        startGame();
+    } else {
+        gamePaused = true;
+        changeGameStatus(startButton);
+    }
 }

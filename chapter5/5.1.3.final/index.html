@@ -5,6 +5,7 @@
     <meta name="description" content="俄罗斯方块游戏，体验有趣的方块消除挑战。">
     <title>俄罗斯方块游戏</title>
     <link href="style.css" rel="stylesheet">
+    <link href="dialog.css" rel="stylesheet">
     <script src="script.js"></script>
 </head>
 <body>
@@ -37,6 +38,13 @@
 <footer>
     <p>&copy; 2024 俄罗斯方块游戏</p>
 </footer>
-
+<div id="gameOverDialog" class="dialog-overlay" style="display: none;">
+    <div class="dialog-box">
+        <h2>游戏结束！</h2>
+        <p>感谢你的游戏！再来一次？</p>
+        <button id="restartButton">重新开始</button>
+        <button id="cancelButton">取消</button>
+    </div>
+</div>
 </body>
 </html>
