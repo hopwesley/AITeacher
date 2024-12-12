@@ -171,3 +171,31 @@ canvas#nextTetromino {
     display: block;
     margin: 10px auto; /* 水平居中并增加上下间距 */
 }
+
+@media (max-height: 700px) {
+    header {
+        height:20px;              /* 固定 header 高度 */
+    }
+    footer {
+        height: 5px;              /* 固定 footer 高度 */
+    }
+
+    canvas#tetrisCanvas {
+        width: 280px;
+        height: 560px;
+    }
+}
+
+@media (max-height: 600px) {
+    header {
+        height:10px;              /* 固定 header 高度 */
+    }
+    footer {
+        height: 2px;              /* 固定 footer 高度 */
+    }
+
+    canvas#tetrisCanvas {
+        width: 240px;
+        height: 480px;
+    }
+}

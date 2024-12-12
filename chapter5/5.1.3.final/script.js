@@ -295,6 +295,7 @@ function resetGame() {
         nextTetromino = null;                  // 清除下一个方块
         board = createBoard(ROWS, COLS);       // 重置棋盘
         drawBoard(board);                      // 绘制空的棋盘
+        resetScore();
     };
 }
 
@@ -314,13 +315,16 @@ function startGame() {
     currentTetromino = randomTetromino();
     nextTetromino = randomTetromino();
     drawNextTetromino();
-    score = 0;
-    document.getElementById('score').textContent = score;
+    resetScore();
     gamePaused = false;
     changeGameStatus(document.getElementById('startButton'));
     update();
 }
 
+function resetScore(){
+    score = 0;
+    document.getElementById('score').textContent = score;
+}
 
 function toggleGame() {
     const startButton = document.getElementById('startButton');
