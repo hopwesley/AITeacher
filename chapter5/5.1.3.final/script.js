@@ -219,8 +219,8 @@ function mergeBoard(board, shape, position) {
     });
 }
 
-function changeGameStatus(button) {
-    if (gamePaused) {
+function changeGameStatus(button, reset = false) {
+    if (reset || gamePaused) {
         button.innerText = '开始游戏';
         button.classList.remove('pauseButton');
         button.classList.add('startButton');
@@ -230,6 +230,7 @@ function changeGameStatus(button) {
         button.classList.add('pauseButton');
     }
 }
+
 
 function rotateMatrix(matrix) {
     const N = matrix.length;
@@ -290,6 +291,10 @@ function resetGame() {
 
     cancelButton.onclick = () => {
         gameOverDialog.style.display = 'none'; // 隐藏对话框
+        currentTetromino = null;               // 清除当前方块
+        nextTetromino = null;                  // 清除下一个方块
+        board = createBoard(ROWS, COLS);       // 重置棋盘
+        drawBoard(board);                      // 绘制空的棋盘
     };
 }
 
@@ -305,13 +310,13 @@ function drawCell(context, x, y, color) {
 }
 
 function startGame() {
-    board = createBoard(ROWS, COLS);        // 重置棋盘
-    currentTetromino = randomTetromino();   // 生成新的方块
+    board = createBoard(ROWS, COLS);
+    currentTetromino = randomTetromino();
     nextTetromino = randomTetromino();
-    drawNextTetromino();                    // 更新下一个方块预览
-    score = 0;                              // 重置分数
+    drawNextTetromino();
+    score = 0;
     document.getElementById('score').textContent = score;
-    gamePaused = false;                     // 重新开始游戏
+    gamePaused = false;
     changeGameStatus(document.getElementById('startButton'));
     update();
 }
@@ -319,10 +324,18 @@ function startGame() {
 
 function toggleGame() {
     const startButton = document.getElementById('startButton');
-    if (gamePaused) {
+
+    // 如果游戏尚未开始，直接开始游戏
+    if (!currentTetromino) {
         startGame();
-    } else {
-        gamePaused = true;
-        changeGameStatus(startButton);
+        return;
+    }
+
+    // 切换游戏暂停/继续状态
+    gamePaused = !gamePaused;
+    changeGameStatus(startButton);
+
+    if (!gamePaused) {
+        update(); // 继续游戏循环
     }
 }
