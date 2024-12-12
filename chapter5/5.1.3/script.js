@@ -13,6 +13,7 @@ const TETROMINOS = [I_TETROMINO, J_TETROMINO, L_TETROMINO, O_TETROMINO, S_TETROM
 let context;
 let board;
 let tetromino;
+let nextTetromino; // 初始化下一个方块
 let position
 let dropCounter = 0;
 let dropInterval = 1000;
@@ -29,8 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     startButton.addEventListener('click', toggleGame);
 
     board = createBoard(ROWS, COLS);
-    tetromino = randomTetromino();
-    position = {row: 0, col: Math.floor(COLS / 2) - Math.floor(tetromino.length / 2)};
 });
 
 function changeGameStatus(button) {
@@ -44,6 +43,10 @@ function changeGameStatus(button) {
     button.innerText = '暂停游戏';
     button.classList.remove('startButton');
     button.classList.add('pauseButton');
+    if (!tetromino){
+        tetromino = randomTetromino();
+        position = {row: 0, col: Math.floor(COLS / 2) - Math.floor(tetromino.length / 2)};
+    }
     update();
 }
 
@@ -54,6 +57,9 @@ function toggleGame(event) {
 
 function updateScore(linesCleared) {
     score += linesCleared * 100;
+    if (linesCleared >= 4) {
+        score += 200;
+    }
     const scoreDisplay = document.getElementById('score');
     scoreDisplay.textContent = score;
 }
@@ -160,12 +166,19 @@ function moveDown() {
     if (!isValidMove(board, tetromino, position)) {
         position.row--;
         mergeBoard(board, tetromino, position);
-        clearLines(board);
+        const linesNo = clearLines(board);
+        if (linesNo) {
+            updateScore(linesNo);
+        }
+
         tetromino = randomTetromino();
         position = {row: 0, col: Math.floor(COLS / 2) - Math.floor(tetromino.length / 2)};
 
         if (!isValidMove(board, tetromino, position)) {
             alert('Game Over!');
+            const button = document.getElementById('startButton');
+            changeGameStatus(button);
+            score = 0;
             board = createBoard(ROWS, COLS);
         }
     }
@@ -208,19 +221,33 @@ document.addEventListener('keydown', event => {
 });
 
 function randomTetromino() {
-    return TETROMINOS[Math.floor(Math.random() * TETROMINOS.length)];
+    if (!nextTetromino){
+        nextTetromino = TETROMINOS[Math.floor(Math.random() * TETROMINOS.length)]; // 生成新的下一个方块
+    }
+    const current = nextTetromino; // 将当前的下一个方块设为当前方块
+    nextTetromino = TETROMINOS[Math.floor(Math.random() * TETROMINOS.length)]; // 生成新的下一个方块
+    drawNextTetromino(nextTetromino); // 显示下一个方块
+    return current; // 返回当前方块
 }
 
 function drawNextTetromino(tetromino) {
-    const nextBlockCanvas = document.getElementById('nextBlockCanvas');
-    const context = nextBlockCanvas.getContext('2d');
-    context.clearRect(0, 0, nextBlockCanvas.width, nextBlockCanvas.height);
+    const canvas = document.getElementById('nextTetromino');
+    const ctx = canvas.getContext('2d');
 
-    context.fillStyle = 'blue';
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const  bs = BLOCK_SIZE/2;
+    // 计算方块的起始绘制位置，使其居中
+    const offsetX = (canvas.width - tetromino[0].length * bs) / 2;
+    const offsetY = (canvas.height - tetromino.length * bs) / 2;
+
+    ctx.fillStyle = 'red'; // 方块颜色
+
+    // 绘制方块
     tetromino.forEach((row, rowIndex) => {
-        row.forEach((cell, cellIndex) => {
+        row.forEach((cell, colIndex) => {
             if (cell) {
-                context.fillRect(cellIndex, rowIndex, 1, 1);
+                ctx.fillRect(offsetX + colIndex * bs, offsetY + rowIndex * bs, bs, bs);
             }
         });
     });

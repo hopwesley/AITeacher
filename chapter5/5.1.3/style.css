@@ -1,14 +1,11 @@
 body {
     display: flex;
     flex-direction: column; /* 纵向排列 */
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    gap: 20px; /* 增加元素之间的间距 */
     font-family: Arial, sans-serif; /* 提升整体字体美观性 */
     background: linear-gradient(to bottom right, #ffecd2, #fcb69f); /* 渐变暖色背景 */
     color: #5a3d2b; /* 深暖色字体 */
+    overflow: hidden;
+    min-height: 100vh;
 }
 
 body, button, h1, h3, p, li {
@@ -29,23 +26,10 @@ canvas#tetrisCanvas {
 
 main {
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    flex: 1; /* 让 main 占据剩余空间 */
-}
-
-.game-container {
-    background-color: #fffaf0; /* 柔和的暖白色背景 */
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* 柔和阴影 */
-    display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 20px;
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.9); /* 轻微背景提升整体层次感 */
-}
+    width: 100%;
+    }
 
 .controls {
     width: 200px;
@@ -147,6 +131,24 @@ button {
 header h1 {
     color: #d84315; /* 深暖色橙红，增强对比度 */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* 添加细微阴影 */
+    font-size: 24px;       /* 设置合适的字体大小 */
+    margin: 0;             /* 移除默认外边距 */
+}
+
+header {
+    text-align: center;
+    padding: 10px 0;
+    height:20px;              /* 固定 header 高度 */
+    flex-shrink: 0;            /* 防止 header 收缩 */
+}
+
+footer {
+    text-align: center;
+    padding: 5px 0; /* 减少内边距 */
+    height: 10px;              /* 固定 footer 高度 */
+    flex-shrink: 0;            /* 防止 footer 收缩 */
+    font-size: 14px;
+    color: #5a3d2b;
 }
 
 
