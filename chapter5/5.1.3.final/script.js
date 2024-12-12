@@ -343,3 +343,9 @@ function toggleGame() {
         update(); // 继续游戏循环
     }
 }
+
+window.addEventListener('beforeunload', (event) => {
+    if (!gamePaused) {
+        event.preventDefault();
+    }
+});
