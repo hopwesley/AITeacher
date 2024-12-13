@@ -287,10 +287,8 @@ function updateParticles() {
     });
 }
 
-
 function clearLines() {
     let linesCleared = 0;
-
     // 遍历每一行，检查是否完全填满
     for (let row = board.length - 1; row >= 0;) {
         if (board[row].every(cell => cell)) {
