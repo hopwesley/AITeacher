@@ -55,6 +55,8 @@ class Tetromino {
             }
 
             return true; // 表示不能再下落
+        }else {
+            playSound(dropSound);
         }
         return false;
     }
@@ -64,6 +66,8 @@ class Tetromino {
         this.position.col--;
         if (!isValidMove(board, this.shape, this.position)) {
             this.position.col++;
+        }else{
+            playSound(moveSound);
         }
     }
 
@@ -71,6 +75,8 @@ class Tetromino {
         this.position.col++;
         if (!isValidMove(board, this.shape, this.position)) {
             this.position.col--;
+        }else{
+            playSound(moveSound);
         }
     }
 
@@ -78,6 +84,7 @@ class Tetromino {
         const rotated = rotateMatrix(this.shape);
         if (isValidMove(board, rotated, this.position)) {
             this.shape = rotated;
+            playSound(rotateSound);
         }
     }
 }
@@ -109,6 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
     board = createBoard(ROWS, COLS);
     document.addEventListener('keydown', handleKeyPress); // 添加键盘事件
     drawBoard(board); // 初始时绘制空的棋盘
+
+    initSounds();
 });
 
 function handleKeyPress(event) {
@@ -255,6 +264,7 @@ function clearLines() {
             // 在顶部添加一行空白行
             board.unshift(Array(COLS).fill(0));
             linesCleared++;
+            playSound(clearSound);
         } else {
             row--;
         }
@@ -280,7 +290,7 @@ function triggerBorderFlash() {
         canvas.addEventListener('animationend', () => {
             canvas.classList.remove('canvas-flash');
             resolve(); // 通过 Promise 通知动画完成
-        }, { once: true }); // 确保只触发一次
+        }, {once: true}); // 确保只触发一次
     });
 }
 
@@ -347,10 +357,12 @@ function startGame() {
     resetScore();
     gamePaused = false;
     changeGameStatus(document.getElementById('startButton'));
-    setTimeout(()=>{update();},1200);
+    setTimeout(() => {
+        update();
+    }, 1200);
 }
 
-function resetScore(){
+function resetScore() {
     score = 0;
     document.getElementById('score').textContent = score;
 }
@@ -378,3 +390,22 @@ window.addEventListener('beforeunload', (event) => {
         event.preventDefault();
     }
 });
+
+function playSound(sound) {
+    sound.currentTime = 0; // 重新从头播放
+    sound.play();
+}
+
+let moveSound;
+let rotateSound;
+let dropSound;
+let clearSound;
+let gameOverSound;
+
+function initSounds() {
+    moveSound = document.getElementById('moveSound');
+    rotateSound = document.getElementById('rotateSound');
+    dropSound = document.getElementById('dropSound');
+    clearSound = document.getElementById('clearSound');
+    gameOverSound = document.getElementById('gameOverSound');
+}
