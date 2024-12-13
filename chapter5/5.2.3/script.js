@@ -63,7 +63,7 @@ class Tetromino {
         this.position.col--;
         if (!isValidMove(board, this.shape, this.position)) {
             this.position.col++;
-        }else{
+        } else {
             playSound('move');
         }
     }
@@ -72,7 +72,7 @@ class Tetromino {
         this.position.col++;
         if (!isValidMove(board, this.shape, this.position)) {
             this.position.col--;
-        }else{
+        } else {
             playSound('move');
         }
     }
@@ -110,7 +110,6 @@ class Particle {
 }
 
 
-
 // 定义所有的方块类型和颜色
 const TETROMINOS = [
     {shape: [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]], color: '#FF5733'}, // I 形 - 鲜亮的橙红色
@@ -139,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', handleKeyPress); // 添加键盘事件
     drawBoard(board); // 初始时绘制空的棋盘
 
-    initSounds();
 });
 
 function handleKeyPress(event) {
@@ -289,6 +287,7 @@ function updateParticles() {
 
 function clearLines() {
     let linesCleared = 0;
+
     // 遍历每一行，检查是否完全填满
     for (let row = board.length - 1; row >= 0;) {
         if (board[row].every(cell => cell)) {
@@ -299,7 +298,6 @@ function clearLines() {
             // 在顶部添加一行空白行
             board.unshift(Array(COLS).fill(0));
             linesCleared++;
-            playSound('clear');
         } else {
             row--;
         }
@@ -307,13 +305,14 @@ function clearLines() {
 
     // 更新分数并显示
     if (linesCleared > 0) {
+        playSound('clear');
+        triggerBorderFlash().then();
+
         score += linesCleared * 100;
         document.getElementById('score').textContent = score;
-
-        // 添加闪烁效果
-        triggerBorderFlash().then();
     }
 }
+
 
 // 异步生成粒子效果
 function generateParticlesAsync(row) {
@@ -383,6 +382,12 @@ function resetGame() {
 }
 
 function drawCell(context, x, y, color) {
+    context.save(); // 保存当前绘图状态
+
+    // 设置发光效果
+    context.shadowColor = color;
+    context.shadowBlur = 10; // 光晕模糊程度
+
     context.fillStyle = color;
     context.fillRect(x, y, 1, 1);
 
@@ -390,6 +395,8 @@ function drawCell(context, x, y, color) {
     context.strokeStyle = '#333333'; // 深灰色边框
     context.lineWidth = 0.05;        // 边框宽度
     context.strokeRect(x, y, 1, 1);
+
+    context.restore(); // 恢复之前的绘图状态，避免影响其他绘制操作
 }
 
 function startGame() {
@@ -418,7 +425,7 @@ function resetScore() {
 
 async function toggleGame() {
     const startButton = document.getElementById('startButton');
-    await initAudioContext(); // 加载音效
+    await initSounds();
     // 如果游戏尚未开始，直接开始游戏
     if (!currentTetromino) {
         startGame();
@@ -442,11 +449,13 @@ window.addEventListener('beforeunload', (event) => {
 
 let audioContext;
 const audioBufferPool = {};
+
 async function loadSound(name, url) {
     const response = await fetch(url);
     const arrayBuffer = await response.arrayBuffer();
     audioBufferPool[name] = await audioContext.decodeAudioData(arrayBuffer);
 }
+
 async function initSounds() {
     initAudioContext();
     await loadSound('move', '../../sounds/move.wav');
@@ -455,6 +464,7 @@ async function initSounds() {
     await loadSound('clear', '../../sounds/clear_sound.wav');
     await loadSound('gameOver', '../../sounds/game_over.wav');
 }
+
 function initAudioContext() {
     if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
