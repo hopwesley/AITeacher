@@ -86,6 +86,31 @@ class Tetromino {
     }
 }
 
+class Particle {
+    constructor(x, y, color) {
+        this.x = x;                      // 粒子初始x坐标
+        this.y = y;                      // 粒子初始y坐标
+        this.vx = (Math.random() - 0.5) * 2;  // 水平速度，随机方向
+        this.vy = Math.random() * -2;    // 垂直速度，向上飞散
+        this.color = color;              // 粒子颜色
+        this.life = 50;                  // 粒子生命周期（帧数）
+    }
+
+    update() {
+        this.x += this.vx;               // 更新x坐标
+        this.y += this.vy;               // 更新y坐标
+        this.vy += 0.05;                 // 模拟重力，让粒子下落
+        this.life--;                     // 生命值减少
+    }
+
+    draw(context) {
+        context.fillStyle = this.color;
+        context.fillRect(this.x, this.y, 0.1, 0.1); // 绘制粒子，粒子大小为0.1个方块单位
+    }
+}
+
+
+
 // 定义所有的方块类型和颜色
 const TETROMINOS = [
     {shape: [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]], color: '#FF5733'}, // I 形 - 鲜亮的橙红色
@@ -197,6 +222,7 @@ function update(time = 0) {
         currentTetromino.draw(context);
     }
 
+    updateParticles(); // 更新粒子效果
     requestAnimationFrame(update);
 }
 
@@ -251,12 +277,25 @@ function rotateMatrix(matrix) {
     return result;
 }
 
+let particles = []; // 存放粒子的数组
+
+function updateParticles() {
+    particles = particles.filter(particle => particle.life > 0); // 移除生命周期结束的粒子
+    particles.forEach(particle => {
+        particle.update();
+        particle.draw(context);
+    });
+}
+
+
 function clearLines() {
     let linesCleared = 0;
 
     // 遍历每一行，检查是否完全填满
     for (let row = board.length - 1; row >= 0;) {
         if (board[row].every(cell => cell)) {
+            // 异步生成粒子效果
+            generateParticlesAsync(row);
             // 移除当前行
             board.splice(row, 1);
             // 在顶部添加一行空白行
@@ -276,6 +315,23 @@ function clearLines() {
         // 添加闪烁效果
         triggerBorderFlash().then();
     }
+}
+
+// 异步生成粒子效果
+function generateParticlesAsync(row) {
+    let col = 0;
+
+    function generateNextColumn() {
+        if (col < COLS) {
+            for (let i = 0; i < 20; i++) {
+                particles.push(new Particle(col, row, 'red'));
+            }
+            col++;
+            requestAnimationFrame(generateNextColumn); // 下一帧继续生成
+        }
+    }
+
+    generateNextColumn(); // 开始生成
 }
 
 function triggerBorderFlash() {
@@ -328,7 +384,6 @@ function resetGame() {
     };
 }
 
-
 function drawCell(context, x, y, color) {
     context.fillStyle = color;
     context.fillRect(x, y, 1, 1);
@@ -340,9 +395,7 @@ function drawCell(context, x, y, color) {
 }
 
 function startGame() {
-
     const mainElement = document.querySelector('.tetrisCanvas');
-
     // 如果没有添加淡入效果，先添加
     if (!mainElement.classList.contains('fade-in')) {
         mainElement.classList.add('fade-in');
@@ -365,9 +418,9 @@ function resetScore() {
     document.getElementById('score').textContent = score;
 }
 
-function toggleGame() {
+async function toggleGame() {
     const startButton = document.getElementById('startButton');
-
+    await initAudioContext(); // 加载音效
     // 如果游戏尚未开始，直接开始游戏
     if (!currentTetromino) {
         startGame();
@@ -389,23 +442,29 @@ window.addEventListener('beforeunload', (event) => {
     }
 });
 
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let audioContext;
 const audioBufferPool = {};
 async function loadSound(name, url) {
     const response = await fetch(url);
     const arrayBuffer = await response.arrayBuffer();
     audioBufferPool[name] = await audioContext.decodeAudioData(arrayBuffer);
 }
-
 async function initSounds() {
+    initAudioContext();
     await loadSound('move', '../../sounds/move.wav');
     await loadSound('rotate', '../../sounds/rotate_sound.wav');
     await loadSound('drop', '../../sounds/drop_sound.wav');
     await loadSound('clear', '../../sounds/clear_sound.wav');
     await loadSound('gameOver', '../../sounds/game_over.wav');
 }
+function initAudioContext() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
 
 function playSound(name) {
+    initAudioContext();
     if (!audioBufferPool[name]) return;
 
     const source = audioContext.createBufferSource();
