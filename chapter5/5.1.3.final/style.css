@@ -82,10 +82,11 @@ button {
 
 .startButton:hover {
     background-color: #f4511e; /* 悬停时加深橙红色 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* 添加阴影，让画布更立体 */
 }
 
 .startButton:active {
-    transform: scale(0.95); /* 点击时按钮轻微缩小 */
+    transform: scale(0.85); /* 点击时按钮轻微缩小 */
 }
 
 /* 暂停游戏按钮 */
@@ -95,9 +96,10 @@ button {
 
 .pauseButton:hover {
     background-color: #c62828; /* 悬停时加深红色 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* 添加阴影，让画布更立体 */
 }
 .pauseButton:active {
-    transform: scale(0.95); /* 点击时按钮轻微缩小 */
+    transform: scale(0.85); /* 点击时按钮轻微缩小 */
 }
 
 .controls li {
@@ -186,6 +188,41 @@ canvas#nextTetromino {
     }
 }
 
+@keyframes flashBorder {
+    0% {
+        border-color: #ff5733;
+        border-width: 3px;
+    }
+    50% {
+        border-color: #ffffff;
+        border-width: 6px;
+    }
+    100% {
+        border-color: #ff5733;
+        border-width: 3px;
+    }
+}
+
+@keyframes flashBorder {
+    0% {
+        border-color: #ff5733;
+        border-width: 3px;
+    }
+    50% {
+        border-color: #ffffff;
+        border-width: 6px;
+    }
+    100% {
+        border-color: #ff5733;
+        border-width: 3px;
+    }
+}
+
+/* 定义用于触发闪烁效果的类 */
+.canvas-flash {
+    animation: flashBorder 0.04s ease-in-out 2; /* 动画持续0.3秒，重复2次 */
+}
+
 @media (max-height: 600px) {
     header {
         height:10px;              /* 固定 header 高度 */
@@ -198,4 +235,15 @@ canvas#nextTetromino {
         width: 240px;
         height: 480px;
     }
+}
+
+/* 初始状态，透明 */
+.tetrisCanvas {
+    opacity: 0.2;
+    transition: opacity 1s ease-in;
+}
+
+/* 游戏开始时的最终状态，完全显示 */
+.tetrisCanvas.fade-in {
+    opacity: 1;
 }

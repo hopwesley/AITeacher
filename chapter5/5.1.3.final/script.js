@@ -264,7 +264,24 @@ function clearLines() {
     if (linesCleared > 0) {
         score += linesCleared * 100;
         document.getElementById('score').textContent = score;
+
+        // 添加闪烁效果
+        triggerBorderFlash().then();
     }
+}
+
+function triggerBorderFlash() {
+    const canvas = context.canvas; // 获取主画布元素
+    return new Promise((resolve) => {
+        // 添加闪烁类
+        canvas.classList.add('canvas-flash');
+
+        // 在动画结束后移除类名并继续执行
+        canvas.addEventListener('animationend', () => {
+            canvas.classList.remove('canvas-flash');
+            resolve(); // 通过 Promise 通知动画完成
+        }, { once: true }); // 确保只触发一次
+    });
 }
 
 function resetGame() {
@@ -296,6 +313,10 @@ function resetGame() {
         board = createBoard(ROWS, COLS);       // 重置棋盘
         drawBoard(board);                      // 绘制空的棋盘
         resetScore();
+
+        // 移除淡入效果
+        const mainElement = document.querySelector('.tetrisCanvas');
+        mainElement.classList.remove('fade-in');
     };
 }
 
@@ -311,6 +332,14 @@ function drawCell(context, x, y, color) {
 }
 
 function startGame() {
+
+    const mainElement = document.querySelector('.tetrisCanvas');
+
+    // 如果没有添加淡入效果，先添加
+    if (!mainElement.classList.contains('fade-in')) {
+        mainElement.classList.add('fade-in');
+    }
+
     board = createBoard(ROWS, COLS);
     currentTetromino = randomTetromino();
     nextTetromino = randomTetromino();
@@ -318,7 +347,7 @@ function startGame() {
     resetScore();
     gamePaused = false;
     changeGameStatus(document.getElementById('startButton'));
-    update();
+    setTimeout(()=>{update();},1200);
 }
 
 function resetScore(){
