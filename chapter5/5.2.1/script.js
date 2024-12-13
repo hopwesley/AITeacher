@@ -55,19 +55,16 @@ class Tetromino {
             }
 
             return true; // 表示不能再下落
-        }else {
-            playSound(dropSound);
         }
         return false;
     }
-
 
     moveLeft() {
         this.position.col--;
         if (!isValidMove(board, this.shape, this.position)) {
             this.position.col++;
         }else{
-            playSound(moveSound);
+            playSound('move');
         }
     }
 
@@ -76,7 +73,7 @@ class Tetromino {
         if (!isValidMove(board, this.shape, this.position)) {
             this.position.col--;
         }else{
-            playSound(moveSound);
+            playSound('move');
         }
     }
 
@@ -84,7 +81,7 @@ class Tetromino {
         const rotated = rotateMatrix(this.shape);
         if (isValidMove(board, rotated, this.position)) {
             this.shape = rotated;
-            playSound(rotateSound);
+            playSound('rotate');
         }
     }
 }
@@ -132,6 +129,7 @@ function handleKeyPress(event) {
         currentTetromino.moveRight();
     } else if (event.key === 'ArrowDown') {
         currentTetromino.moveDown();
+        playSound('drop');
     } else if (event.key === 'ArrowUp') {
         currentTetromino.rotate();
     }
@@ -264,7 +262,7 @@ function clearLines() {
             // 在顶部添加一行空白行
             board.unshift(Array(COLS).fill(0));
             linesCleared++;
-            playSound(clearSound);
+            playSound('clear');
         } else {
             row--;
         }
@@ -298,7 +296,7 @@ function resetGame() {
     // 显示自定义对话框
     const gameOverDialog = document.getElementById('gameOverDialog');
     gameOverDialog.style.display = 'flex';
-
+    playSound('gameOver');
     // 暂停游戏
     gamePaused = true;
     changeGameStatus(document.getElementById('startButton')); // 统一按钮状态
@@ -391,21 +389,27 @@ window.addEventListener('beforeunload', (event) => {
     }
 });
 
-function playSound(sound) {
-    sound.currentTime = 0; // 重新从头播放
-    sound.play();
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const audioBufferPool = {};
+async function loadSound(name, url) {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    audioBufferPool[name] = await audioContext.decodeAudioData(arrayBuffer);
 }
 
-let moveSound;
-let rotateSound;
-let dropSound;
-let clearSound;
-let gameOverSound;
+async function initSounds() {
+    await loadSound('move', '../../sounds/move.wav');
+    await loadSound('rotate', '../../sounds/rotate_sound.wav');
+    await loadSound('drop', '../../sounds/drop_sound.wav');
+    await loadSound('clear', '../../sounds/clear_sound.wav');
+    await loadSound('gameOver', '../../sounds/game_over.wav');
+}
 
-function initSounds() {
-    moveSound = document.getElementById('moveSound');
-    rotateSound = document.getElementById('rotateSound');
-    dropSound = document.getElementById('dropSound');
-    clearSound = document.getElementById('clearSound');
-    gameOverSound = document.getElementById('gameOverSound');
+function playSound(name) {
+    if (!audioBufferPool[name]) return;
+
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBufferPool[name];
+    source.connect(audioContext.destination);
+    source.start(0);
 }
