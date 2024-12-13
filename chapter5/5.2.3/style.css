@@ -1,0 +1,249 @@
+body {
+    display: flex;
+    flex-direction: column; /* 纵向排列 */
+    font-family: Arial, sans-serif; /* 提升整体字体美观性 */
+    background: linear-gradient(to bottom right, #ffecd2, #fcb69f); /* 渐变暖色背景 */
+    color: #5a3d2b; /* 深暖色字体 */
+    overflow: hidden;
+    min-height: 100vh;
+}
+
+body, button, h1, h3, p, li {
+    font-family: 'Roboto', Arial, sans-serif; /* 使用现代、易读的字体 */
+}
+
+canvas {
+    border: 1px solid black;
+    background-color: white;
+}
+
+canvas#tetrisCanvas {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* 添加阴影，让画布更立体 */
+    border-radius: 8px; /* 可选：添加圆角，使画布更美观 */
+    border: 1px solid #d7ccc8; /* 暖灰色边框 */
+    background-color: #ffffff;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    }
+
+.controls {
+    width: 200px;
+    background-color: #ffe0b2; /* 浅暖色背景 */
+    border: 1px solid #ffcc80;
+    border-radius: 12px;
+    padding: 15px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 将按钮在容器内水平居中 */
+}
+
+.controls h3 {
+    color: #ff7043; /* 控件标题暖色调 */
+}
+
+.controls ul {
+    list-style: none;
+    white-space: nowrap; /* 防止列表项自动换行 */
+    background-color: #fff3e0; /* 更亮的背景色 */
+    border: 2px solid #ffcc80;
+    padding: 20px; /* 增加内边距 */
+    border-radius: 12px;
+}
+
+.controls li {
+    overflow: hidden;
+    text-overflow: ellipsis; /* 如果内容过长，用省略号表示 */
+}
+
+/* 按钮样式 */
+button {
+    padding: 10px 20px;
+    border: 2px solid #ff5722; /* 添加边框 */
+    background-color: #ff7043; /* 更亮的暖色调 */
+    border-radius: 12px; /* 使用圆角按钮 */
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s; /* 添加悬停和点击时的动画效果 */
+}
+
+/* 开始游戏按钮 */
+.startButton {
+    background-color: #ff5722; /* 悬停时加深颜色 */
+    transform: translateY(-2px); /* 悬停时轻微上移 */
+}
+
+.startButton:hover {
+    background-color: #f4511e; /* 悬停时加深橙红色 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* 添加阴影，让画布更立体 */
+}
+
+.startButton:active {
+    transform: scale(0.85); /* 点击时按钮轻微缩小 */
+}
+
+/* 暂停游戏按钮 */
+.pauseButton {
+    background-color: #d32f2f; /* 柔和的深红色 */
+}
+
+.pauseButton:hover {
+    background-color: #c62828; /* 悬停时加深红色 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* 添加阴影，让画布更立体 */
+}
+.pauseButton:active {
+    transform: scale(0.85); /* 点击时按钮轻微缩小 */
+}
+
+.controls li {
+    margin-bottom: 10px; /* 增加 li 元素之间的上下间距 */
+}
+
+header h1 {
+    color: #d84315; /* 深暖色橙红，增强对比度 */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* 添加细微阴影 */
+    font-size: 24px;       /* 设置合适的字体大小 */
+    margin: 0;             /* 移除默认外边距 */
+}
+
+header {
+    text-align: center;
+    padding: 10px 0;
+    height:60px;              /* 固定 header 高度 */
+    flex-shrink: 0;            /* 防止 header 收缩 */
+}
+
+footer {
+    text-align: center;
+    padding: 5px 0; /* 减少内边距 */
+    height: 20px;              /* 固定 footer 高度 */
+    flex-shrink: 0;            /* 防止 footer 收缩 */
+    font-size: 14px;
+    color: #5a3d2b;
+}
+
+.controls, .info-panel {
+    min-height: 300px; /* 确保两者高度一致 */
+}
+
+
+/* 调整 info-panel 样式 */
+.info-panel {
+    background-color: #ffe0b2; /* 浅暖色背景 */
+    border: 2px solid #ffcc80; /* 边框颜色 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+    padding: 15px; /* 减少内边距 */
+    width: 200px;
+    min-height: 300px; /* 确保高度与 controls 匹配 */
+    text-align: center;
+    border-radius: 12px; /* 圆角边框 */
+}
+
+/* 调整分数标题和分数样式 */
+.info-panel h3 {
+    font-size: 14px; /* 缩小标题字体 */
+    font-weight: normal; /* 使标题不显得过于醒目 */
+    margin-bottom: 0; /* 减小标题与分数之间的间距 */
+    color: #5a3d2b; /* 统一颜色风格 */
+}
+
+.info-panel #score {
+    font-size: 36px; /* 增大分数字体，使其更加突出 */
+    font-weight: bold;
+    color: #ff5722; /* 使用鲜亮的橙红色 */
+    margin-top: 5px; /* 减少分数顶部的间距 */
+}
+
+/* 增加下一个方块标题与预览之间的间距 */
+.info-panel .next-title {
+    margin-top: 15px; /* 增加与分数之间的垂直间距 */
+    font-size: 14px; /* 保持标题字体适中 */
+    color: #5a3d2b;
+}
+
+/* 确保下一个方块预览的画布居中 */
+canvas#nextTetromino {
+    display: block;
+    margin: 10px auto; /* 水平居中并增加上下间距 */
+}
+
+@media (max-height: 700px) {
+    header {
+        height:20px;              /* 固定 header 高度 */
+    }
+    footer {
+        height: 5px;              /* 固定 footer 高度 */
+    }
+
+    canvas#tetrisCanvas {
+        width: 280px;
+        height: 560px;
+    }
+}
+
+@keyframes flashBorder {
+    0% {
+        border-color: #ff5733;
+        border-width: 3px;
+    }
+    50% {
+        border-color: #ffffff;
+        border-width: 6px;
+    }
+    100% {
+        border-color: #ff5733;
+        border-width: 3px;
+    }
+}
+
+@keyframes flashBorder {
+    0% {
+        border-color: #ff5733;
+        border-width: 3px;
+    }
+    50% {
+        border-color: #ffffff;
+        border-width: 6px;
+    }
+    100% {
+        border-color: #ff5733;
+        border-width: 3px;
+    }
+}
+
+/* 定义用于触发闪烁效果的类 */
+.canvas-flash {
+    animation: flashBorder 0.04s ease-in-out 2; /* 动画持续0.3秒，重复2次 */
+}
+
+@media (max-height: 600px) {
+    header {
+        height:10px;              /* 固定 header 高度 */
+    }
+    footer {
+        height: 2px;              /* 固定 footer 高度 */
+    }
+
+    canvas#tetrisCanvas {
+        width: 240px;
+        height: 480px;
+    }
+}
+
+/* 初始状态，透明 */
+.tetrisCanvas {
+    opacity: 0.2;
+    transition: opacity 1s ease-in;
+}
+
+/* 游戏开始时的最终状态，完全显示 */
+.tetrisCanvas.fade-in {
+    opacity: 1;
+}
