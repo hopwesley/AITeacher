@@ -419,7 +419,9 @@ function startGame() {
 
 function resetScore() {
     score = 0;
+    level = 1;
     document.getElementById('score').textContent = score;
+    document.getElementById('currentLevel').textContent
 }
 
 async function toggleGame() {
@@ -485,6 +487,9 @@ function updateScore(linesCleared) {
     score += linesCleared * 100;
     document.getElementById('score').textContent = score;
 
+    if (level >= 20) {
+        return;
+    }
     // 每当分数达到LEVEL_THRESHOLD的倍数时，提升难度
     if (score >= level * LEVEL_THRESHOLD) {
         level++;
