@@ -141,7 +141,6 @@ footer {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* 阴影效果 */
     padding: 15px; /* 减少内边距 */
     width: 200px;
-    min-height: 300px; /* 确保高度与 controls 匹配 */
     text-align: center;
     border-radius: 12px; /* 圆角边框 */
 }
@@ -159,6 +158,7 @@ footer {
     font-weight: bold;
     color: #ff5722; /* 使用鲜亮的橙红色 */
     margin-top: 5px; /* 减少分数顶部的间距 */
+    margin-bottom: 5px;
 }
 
 /* 增加下一个方块标题与预览之间的间距 */
@@ -166,6 +166,14 @@ footer {
     margin-top: 15px; /* 增加与分数之间的垂直间距 */
     font-size: 14px; /* 保持标题字体适中 */
     color: #5a3d2b;
+}
+
+/* 为当前等级数字添加样式 */
+.info-panel #currentLevel {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ff7043; /* 醒目的暖色调 */
+    margin-top: 5px; /* 与标题保持较小的垂直间距 */
 }
 
 /* 确保下一个方块预览的画布居中 */

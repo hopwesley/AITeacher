@@ -8,7 +8,10 @@ let board;
 let currentTetromino;
 let nextTetromino;
 let dropCounter = 0;
-let dropInterval = 1000;
+let level = 1;            // 初始难度级别
+let dropInterval = 1000;  // 初始下落间隔（以毫秒为单位）
+const LEVEL_THRESHOLD = 500;  // 每500分提升一个难度级别
+
 let lastTime = 0;
 let score = 0;
 let gamePaused = true;
@@ -202,7 +205,6 @@ function drawNextTetromino() {
     });
 }
 
-
 function update(time = 0) {
     if (gamePaused) return; // 如果游戏暂停，停止更新
 
@@ -223,7 +225,6 @@ function update(time = 0) {
     updateParticles(); // 更新粒子效果
     requestAnimationFrame(update);
 }
-
 
 function isValidMove(board, shape, position) {
     for (let row = 0; row < shape.length; row++) {
@@ -307,9 +308,7 @@ function clearLines() {
     if (linesCleared > 0) {
         playSound('clear');
         triggerBorderFlash().then();
-
-        score += linesCleared * 100;
-        document.getElementById('score').textContent = score;
+        updateScore(linesCleared)
     }
 }
 
@@ -479,4 +478,38 @@ function playSound(name) {
     source.buffer = audioBufferPool[name];
     source.connect(audioContext.destination);
     source.start(0);
+}
+
+function updateScore(linesCleared) {
+
+    score += linesCleared * 100;
+    document.getElementById('score').textContent = score;
+
+    // 每当分数达到LEVEL_THRESHOLD的倍数时，提升难度
+    if (score >= level * LEVEL_THRESHOLD) {
+        level++;
+        document.getElementById('currentLevel').textContent = level;
+        dropInterval *= 0.9; // 提高难度，减少下落间隔，速度加快
+        showLevelUpMessage();
+    }
+}
+
+function showLevelUpMessage() {
+    const message = document.createElement('div');
+    message.textContent = `Level Up! Now Level ${level}`;
+    message.style.position = 'absolute';
+    message.style.top = '20px';
+    message.style.left = '50%';
+    message.style.transform = 'translateX(-50%)';
+    message.style.padding = '10px 20px';
+    message.style.backgroundColor = '#ffcc00';
+    message.style.color = '#000';
+    message.style.fontSize = '20px';
+    message.style.borderRadius = '5px';
+    message.style.zIndex = '1000';
+    document.body.appendChild(message);
+
+    setTimeout(() => {
+        document.body.removeChild(message);
+    }, 2000);
 }
