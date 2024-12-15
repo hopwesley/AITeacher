@@ -422,7 +422,7 @@ function resetScore() {
     score = 0;
     level = 1;
     document.getElementById('score').textContent = score;
-    document.getElementById('currentLevel').textContent
+    document.getElementById('currentLevel').textContent = level;
 }
 
 async function toggleGame() {
@@ -522,7 +522,7 @@ function showLevelUpMessage() {
 
 let highScore = localStorage.getItem('highScore') || 0;
 let totalGames = localStorage.getItem('totalGames') || 0;
-let totalScore = localStorage.getItem('totalScore') || 0;
+let totalScore = localStorage.getItem('totalScore2') || 0;
 
 function endGame() {
     totalGames++;
@@ -534,7 +534,7 @@ function endGame() {
     }
 
     localStorage.setItem('totalGames', totalGames);
-    localStorage.setItem('totalScore', totalScore);
+    localStorage.setItem('totalScore2', totalScore);
 
     displayAdvancedStats();
 }
@@ -542,8 +542,7 @@ function endGame() {
 function displayAdvancedStats() {
     document.getElementById('currentScore').textContent = score;
     document.getElementById('highScore').textContent = highScore;
+    console.log("------>>>", totalScore, "games:", totalGames);
     document.getElementById('averageScore').textContent = (totalScore / totalGames).toFixed(2);
     document.getElementById('totalGames').textContent = totalGames;
-
-    document.getElementById('advancedStatsPanel').style.display = 'block';
 }
