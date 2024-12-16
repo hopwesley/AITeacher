@@ -134,3 +134,19 @@ body {
 .player-area canvas, .opponent-area canvas {
     border: 2px solid #444; /* 为 canvas 添加边框以强调区域 */
 }
+
+
+.battle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px; /* 让 battle-panel 和退出按钮之间有一定间隔 */
+    width: 100%;
+    padding: 20px;
+}
+
+.quit-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}

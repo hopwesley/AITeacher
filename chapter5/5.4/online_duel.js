@@ -34,7 +34,7 @@ function sendMessage() {
 
 function startBattle() {
     document.querySelector('.container').style.display = 'none'; // 隐藏好友列表界面
-    document.getElementById('battlePanel').style.display = 'flex'; // 显示对战界面
+    document.getElementById('battleContainer').style.display = 'flex'; // 显示对战界面
 
     // 初始化或加载对战逻辑
     initBattleGame();
@@ -43,4 +43,9 @@ function startBattle() {
 function initBattleGame() {
     // 初始化双方的游戏画布、分数和等级等
     console.log("对战开始！");
+}
+
+function quitOnlineGame(){
+    document.querySelector('.container').style.display = 'flex'; // 隐藏好友列表界面
+    document.getElementById('battleContainer').style.display = 'none'; // 显示对战界面
 }
