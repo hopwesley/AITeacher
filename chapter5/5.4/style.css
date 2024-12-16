@@ -139,8 +139,8 @@ footer {
     background-color: #ffe0b2; /* 浅暖色背景 */
     border: 2px solid #ffcc80; /* 边框颜色 */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* 阴影效果 */
-    padding: 15px; /* 减少内边距 */
-    width: 200px;
+    padding: 5px; /* 减少内边距 */
+    width: 140px;
     text-align: center;
     border-radius: 12px; /* 圆角边框 */
 }
@@ -153,7 +153,7 @@ footer {
     color: #5a3d2b; /* 统一颜色风格 */
 }
 
-.info-panel #score {
+.info-panel .score {
     font-size: 36px; /* 增大分数字体，使其更加突出 */
     font-weight: bold;
     color: #ff5722; /* 使用鲜亮的橙红色 */
@@ -169,7 +169,8 @@ footer {
 }
 
 /* 为当前等级数字添加样式 */
-.info-panel #currentLevel {
+.info-panel #currentLevel,
+.info-panel .game-level-val {
     font-size: 28px;
     font-weight: bold;
     color: #ff7043; /* 醒目的暖色调 */
