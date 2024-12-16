@@ -139,7 +139,7 @@ footer {
     background-color: #ffe0b2; /* 浅暖色背景 */
     border: 2px solid #ffcc80; /* 边框颜色 */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* 阴影效果 */
-    padding: 5px; /* 减少内边距 */
+    padding: 15px; /* 减少内边距 */
     width: 140px;
     text-align: center;
     border-radius: 12px; /* 圆角边框 */

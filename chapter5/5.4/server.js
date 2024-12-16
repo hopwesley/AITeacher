@@ -31,3 +31,23 @@ async function httpService(apiPath, data) {
         throw error;
     }
 }
+
+const socket = new WebSocket('wss://192.168.18.51/game');
+
+socket.onopen = () => {
+    console.log('WebSocket 连接已打开');
+};
+
+socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    console.log('接收到的数据:', data);
+};
+
+socket.onclose = () => {
+    console.log('WebSocket 连接已关闭');
+};
+
+// 发送数据到服务器
+function sendPlayerData(playerData) {
+    socket.send(JSON.stringify(playerData));
+}
