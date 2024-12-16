@@ -141,6 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', handleKeyPress); // 添加键盘事件
     drawBoard(board); // 初始时绘制空的棋盘
 
+    const savedBgColor = localStorage.getItem('bgColor');
+    if (savedBgColor) {
+        document.body.style.backgroundColor = savedBgColor;
+    }
+    particleColor =  localStorage.getItem('blockColor') || 'red';
+    document.getElementById('blockColorPicker').value = particleColor;
 });
 
 function handleKeyPress(event) {
@@ -312,7 +318,7 @@ function clearLines() {
     }
 }
 
-
+let particleColor = 'red';
 // 异步生成粒子效果
 function generateParticlesAsync(row) {
     let col = 0;
@@ -320,7 +326,7 @@ function generateParticlesAsync(row) {
     function generateNextColumn() {
         if (col < COLS) {
             for (let i = 0; i < 20; i++) {
-                particles.push(new Particle(col, row, 'red'));
+                particles.push(new Particle(col, row, particleColor));
             }
             col++;
             requestAnimationFrame(generateNextColumn); // 下一帧继续生成
@@ -522,11 +528,11 @@ function showLevelUpMessage() {
 
 let highScore = localStorage.getItem('highScore') || 0;
 let totalGames = localStorage.getItem('totalGames') || 0;
-let totalScore = localStorage.getItem('totalScore2') || 0;
+let totalScore = parseInt(localStorage.getItem('totalScore3')) || 0;
 
 function endGame() {
     totalGames++;
-    totalScore += score;
+    totalScore += parseInt(score);
 
     if (score > highScore) {
         highScore = score;
@@ -534,7 +540,7 @@ function endGame() {
     }
 
     localStorage.setItem('totalGames', totalGames);
-    localStorage.setItem('totalScore2', totalScore);
+    localStorage.setItem('totalScore3', totalScore.toString());
 
     displayAdvancedStats();
 }
@@ -545,4 +551,10 @@ function displayAdvancedStats() {
     console.log("------>>>", totalScore, "games:", totalGames);
     document.getElementById('averageScore').textContent = (totalScore / totalGames).toFixed(2);
     document.getElementById('totalGames').textContent = totalGames;
+}
+
+function saveCustomization() {
+     particleColor = document.getElementById('blockColorPicker').value;
+    localStorage.setItem('particleColor', particleColor);
+    alert('个性化设置已保存！');
 }
