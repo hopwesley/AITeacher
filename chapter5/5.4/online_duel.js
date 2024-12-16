@@ -1,11 +1,8 @@
-
 function selectFriend(element, name, id, highScore) {
     // 移除所有已选中的样式
     document.querySelectorAll('.friend').forEach(friend => friend.classList.remove('selected'));
-
     // 添加选中样式
     element.classList.add('selected');
-
     // 更新详情面板内容
     document.getElementById('friendName').textContent = name;
     document.getElementById('friendId').textContent = id;
