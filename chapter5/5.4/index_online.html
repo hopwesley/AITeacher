@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Tetris Duel</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dialog.css">
+  <script src="script.js"></script>
+  <!-- 如果有其他脚本文件，如 online 对战相关的逻辑 -->
+  <link rel="stylesheet" href="online_duel.css">
+  <script src="online_duel.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="friends-list">
+    <h2>好友列表</h2>
+    <div class="friend" onclick="selectFriend(this, 'Alice', '12345', 1200)">
+      <strong>Alice</strong>
+      <div class="status">状态: 空闲中</div>
+    </div>
+    <div class="friend" onclick="selectFriend(this, 'Bob', '67890', 1500)">
+      <strong>Bob</strong>
+      <div class="status">状态: 游戏中</div>
+    </div>
+    <div class="friend" onclick="selectFriend(this, 'Charlie', '54321', 1000)">
+      <strong>Charlie</strong>
+      <div class="status">状态: 空闲中</div>
+    </div>
+  </div>
+
+  <div class="details-panel" id="detailsPanel">
+    <h3>好友详情</h3>
+    <div class="info">
+      <p><strong>名称:</strong> <span id="friendName">-</span></p>
+      <p><strong>ID:</strong> <span id="friendId">-</span></p>
+      <p><strong>历史最高分:</strong> <span id="friendHighScore">-</span></p>
+    </div>
+    <button id="inviteButton" onclick="inviteFriend()">邀请对战</button>
+    <div class="chat-box">
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input">
+        <input type="text" id="chatInput" placeholder="输入消息...">
+        <button onclick="sendMessage()">发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="battle-panel" id="battlePanel" style="display: none;">
+  <div class="player-area">
+    <h3>你的游戏</h3>
+    <canvas id="playerCanvas" width="320" height="640"></canvas>
+    <p>分数: <span id="playerScore">0</span></p>
+    <p>等级: <span id="playerLevel">1</span></p>
+  </div>
+  <div class="opponent-area">
+    <h3>对手的游戏</h3>
+    <canvas id="opponentCanvas" width="320" height="640"></canvas>
+    <p>分数: <span id="opponentScore">0</span></p>
+    <p>等级: <span id="opponentLevel">1</span></p>
+  </div>
+</div>
+
+<script src="online_duel.js"></script>
+</body>
+</html>
