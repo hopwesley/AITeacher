@@ -1,0 +1,35 @@
+#nicknamePanel,
+#customizationPanel {
+    margin: 20px auto;
+    padding: 15px;
+    background-color: #2b2d42;
+    color: #edf2f4;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+
+#nicknamePanel input,
+#customizationPanel input {
+    margin: 5px 0;
+    padding: 5px;
+    width: 80%;
+    border: 1px solid #8d99ae;
+    border-radius: 5px;
+}
+
+#nicknamePanel button,
+#customizationPanel button {
+    background-color: #ef233c;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#nicknamePanel button:hover,
+#customizationPanel button:hover {
+    background-color: #d90429;
+}

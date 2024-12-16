@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="俄罗斯方块游戏，体验有趣的方块消除挑战。">
+    <title>俄罗斯方块游戏</title>
+    <link href="style.css" rel="stylesheet">
+    <link href="dialog.css" rel="stylesheet">
+    <script src="script.js"></script>
+    <script src="server.js"></script>
+</head>
+<body>
+
+<header>
+    <h1>俄罗斯方块游戏</h1>
+</header>
+
+<main>
+    <div id="controls" class="controls">
+        <h3>操作说明</h3>
+        <ul>
+            <li>← 键：方块左移</li>
+            <li>→ 键：方块右移</li>
+            <li>↓ 键：方块快速下落</li>
+            <li>↑ 键：旋转方块</li>
+        </ul>
+        <button id="startButton" class="startButton">开始游戏</button>
+    </div>
+
+    <canvas id="tetrisCanvas" class="tetrisCanvas" width="320" height="640"></canvas>
+    <div id="info-panel" class="info-panel">
+        <h3>当前得分</h3>
+        <p id="score">0</p>
+        <h3 class="next-title">下一个方块</h3>
+        <canvas id="nextTetromino" class="nextTetromino" width="100" height="100"></canvas>
+        <h3 class="level-title">当前等级</h3>
+        <p id="currentLevel">1</p>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 俄罗斯方块游戏</p>
+</footer>
+<div id="gameOverDialog" class="dialog-overlay" style="display: none;">
+    <div class="dialog-box">
+        <h2>游戏结束！</h2>
+        <p>感谢你的游戏！再来一次？</p>
+        <button id="restartButton">重新开始</button>
+        <button id="cancelButton">取消</button>
+    </div>
+
+    <div id="advancedStatsPanel" class="advancedStatsPanel">
+        <h3>游戏统计报告</h3>
+        <p>本次分数：<span id="currentScore">0</span></p>
+        <p>最高分：<span id="highScore">0</span></p>
+        <p>平均分：<span id="averageScore">0</span></p>
+        <p>总游戏次数：<span id="totalGames">0</span></p>
+    </div>
+
+</div>
+
+</body>
+</html>
