@@ -14,7 +14,7 @@ const server_host = 'http://192.168.18.51';///api/uploadScore
 
 // 异步 httpService 函数
 async function httpService(apiPath, data) {
-    console.log('httpService', apiPath, JSON.stringify(data));
+    console.log('------>>>httpService:', apiPath, JSON.stringify(data));
     try {
         const response = await fetch(server_host + apiPath, {
             method: 'POST',
@@ -23,7 +23,6 @@ async function httpService(apiPath, data) {
             },
             body: JSON.stringify(data)
         });
-
         const result = await response.json();
         console.log('------>>> Response received:', result);
         return result;

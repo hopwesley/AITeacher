@@ -34,8 +34,6 @@ class Tetromino {
             });
         });
     }
-
-
     moveDown() {
         this.position.row++;
         if (!isValidMove(board, this.shape, this.position)) {
@@ -54,9 +52,13 @@ class Tetromino {
 
             // 检查游戏是否结束
             if (!isValidMove(board, currentTetromino.shape, currentTetromino.position)) {
+                uploadScore().then(result => {
+                    alert("上传积分成功！")
+                }).catch(error => {
+                    alert("上传积分错误:"+error);
+                });
                 resetGame(); // 调用游戏结束逻辑
             }
-
             return true; // 表示不能再下落
         }
         return false;
@@ -145,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedBgColor) {
         document.body.style.backgroundColor = savedBgColor;
     }
-    particleColor =  localStorage.getItem('blockColor') || 'red';
+    particleColor = localStorage.getItem('blockColor') || 'red';
     document.getElementById('blockColorPicker').value = particleColor;
 });
 
@@ -319,6 +321,7 @@ function clearLines() {
 }
 
 let particleColor = 'red';
+
 // 异步生成粒子效果
 function generateParticlesAsync(row) {
     let col = 0;
@@ -351,6 +354,7 @@ function triggerBorderFlash() {
 }
 
 function resetGame() {
+    console.log("------------------>>>>>>")
     // 显示自定义对话框
     const gameOverDialog = document.getElementById('gameOverDialog');
     gameOverDialog.style.display = 'flex';
@@ -429,6 +433,7 @@ function resetScore() {
     level = 1;
     document.getElementById('score').textContent = score;
     document.getElementById('currentLevel').textContent = level;
+    totalLineCleared = 0;
 }
 
 async function toggleGame() {
@@ -492,6 +497,9 @@ function playSound(name) {
 function updateScore(linesCleared) {
 
     score += linesCleared * 100;
+
+    totalLineCleared += linesCleared;
+
     document.getElementById('score').textContent = score;
 
     if (level >= 20) {
@@ -554,7 +562,26 @@ function displayAdvancedStats() {
 }
 
 function saveCustomization() {
-     particleColor = document.getElementById('blockColorPicker').value;
+    particleColor = document.getElementById('blockColorPicker').value;
     localStorage.setItem('particleColor', particleColor);
     alert('个性化设置已保存！');
+}
+
+let totalLineCleared = 0;
+
+async function uploadScore() {
+
+    const playerName = localStorage.getItem('playerName');
+    const uuid = localStorage.getItem('uuid');
+
+    const data = {
+        nickname: playerName,
+        uuid: uuid,
+        score: score,
+        level: level,
+        linesCleared: totalLineCleared,
+        timestamp: new Date().toISOString()
+    };
+
+    await httpService('/api/uploadScore', data);
 }
