@@ -33,6 +33,10 @@
     async function fetchLeaderboard() {
         const response = await fetch('/getLeaderboard');
         const leaderboard = await response.json();
+        if (!leaderboard) {
+            alert("没有数据");
+            return;
+        }
 
         const tbody = document.querySelector('#leaderboard tbody');
         tbody.innerHTML = ''; // 清空表格内容
