@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>匹配玩家并建立对战连接</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        input, button {
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="multiplayerSection" style="margin-top: 20px;">
+    <button id="matchButton">开始匹配</button>
+    <p id="matchStatus">状态：未匹配</p>
+</div>
+<script>
+    const matchButton = document.getElementById('matchButton');
+    const matchStatus = document.getElementById('matchStatus');
+    let socket;
+
+    matchButton.addEventListener('click', () => {
+        matchStatus.textContent = '状态：匹配中...';
+        socket = new WebSocket('ws://localhost:8080/match');
+
+        socket.onopen = () => {
+            console.log('WebSocket 连接已建立');
+            socket.send(JSON.stringify({ type: 'matchRequest', player: 'Player1' }));
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'matchSuccess') {
+                matchStatus.textContent = `状态：匹配成功！对手：${data.opponent}`;
+                console.log('匹配成功，开始对战');
+                // 可以在这里启动游戏对战逻辑
+            }
+        };
+
+        socket.onclose = () => {
+            console.log('WebSocket 连接已关闭');
+        };
+    });
+</script>
+
+</body>
+</html>
