@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据库存储玩家信息和分数</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        input, button {
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<h3>创建玩家</h3>
+<input type="text" id="username" placeholder="用户名">
+<input type="text" id="nickname" placeholder="昵称">
+<button onclick="createPlayer()">创建玩家</button>
+
+<h3>更新分数</h3>
+<input type="text" id="updateUsername" placeholder="用户名">
+<input type="number" id="score" placeholder="新分数">
+<button onclick="updateScore()">更新分数</button>
+<script>
+    async function createPlayer() {
+        const username = document.getElementById('username').value;
+        const nickname = document.getElementById('nickname').value;
+
+        const response = await fetch('/createPlayer', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, nickname})
+        });
+
+        alert(await response.text());
+    }
+
+    async function updateScore() {
+        const username = document.getElementById('updateUsername').value;
+        const score = document.getElementById('score').value;
+
+        const response = await fetch('/updateScore', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, score: parseInt(score)})
+        });
+
+        alert(await response.text());
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>分数同步与排行榜</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        input, button {
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<h3>排行榜</h3>
+<table id="leaderboard" border="1" style="margin: auto; width: 50%;">
+    <thead>
+    <tr>
+        <th>排名</th>
+        <th>玩家昵称</th>
+        <th>最高分</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    async function fetchLeaderboard() {
+        const response = await fetch('/getLeaderboard');
+        const leaderboard = await response.json();
+
+        const tbody = document.querySelector('#leaderboard tbody');
+        tbody.innerHTML = ''; // 清空表格内容
+
+        leaderboard.forEach((player, index) => {
+            const row = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${player.nickname}</td>
+                    <td>${player.high_score}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+    // 页面加载时自动获取排行榜
+    window.onload = fetchLeaderboard;
+</script>
+
+</body>
+</html>
