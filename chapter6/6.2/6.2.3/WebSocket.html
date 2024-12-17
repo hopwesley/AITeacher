@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket 示例</title>
+</head>
+<body>
+<h2>WebSocket 通信</h2>
+<button onclick="sendMessage()">发送消息</button>
+
+<script>
+    const socket = new WebSocket("ws://localhost:8080/ws");
+
+    socket.onopen = () => {
+        console.log("已连接到 WebSocket 服务器");
+    };
+
+    socket.onmessage = (event) => {
+        console.log("收到消息:", event.data);
+    };
+
+    function sendMessage() {
+        socket.send(JSON.stringify("Hello, WebSocket!"));
+    }
+</script>
+</body>
+</html>
