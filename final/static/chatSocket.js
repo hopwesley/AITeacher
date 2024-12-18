@@ -1,4 +1,5 @@
 class ChatCallback extends WebSocketCallback {
+
     OnOpen() {
         super.OnOpen();
         console.log('------>>>聊天连接已准备好');
@@ -25,6 +26,7 @@ class ChatCallback extends WebSocketCallback {
     OnClose() {
         super.OnClose();
         console.log('------>>>聊天连接已断开');
+        notifyOffline();
     }
 }
 

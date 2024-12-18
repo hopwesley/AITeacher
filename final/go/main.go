@@ -49,11 +49,24 @@ func signInUpHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(bts)
 }
 
+func noCacheMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	initDB()
 	defer closeDB()
 
-	http.Handle("/", http.FileServer(http.Dir("./static")))
+	//http.Handle("/", http.FileServer(http.Dir("./static")))
+
+	staticFileServer := http.FileServer(http.Dir("./static"))
+	http.Handle("/", noCacheMiddleware(staticFileServer))
+
 	http.Handle("/sounds/", http.StripPrefix("/sounds/", http.FileServer(http.Dir("./sounds"))))
 	http.HandleFunc("/index", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/index.html")

@@ -30,14 +30,21 @@ async function loadOnlinePlayers() {
     const template = document.getElementById("friendItemTemplate")
     for (const key in playerMap) {
         const obj = playerMap[key];
+
+        if (obj.uuid === player.uuid) {
+            console.log("------>>> skip yourself")
+            continue;
+        }
+
         const clone = template.cloneNode(true);
         clone.style.display = 'block';
         clone.removeAttribute('id');
         clone.querySelector(".friend_name").textContent = obj.name;
         clone.querySelector(".friend_status").textContent = obj.status === 0 ? "状态: 空闲" : "状态: 游戏中";
-        clone.addEventListener('click',()=>{
+        clone.addEventListener('click', () => {
             selectFriend(clone, obj);
         })
+        clone.dataset.uuid = obj.uuid
         friendListUl.append(clone);
     }
 }
@@ -100,7 +107,11 @@ function signOut() {
 }
 
 function userOnOffLine(isOnline, player) {
-
+    document.querySelectorAll('.friend').forEach(friend => {
+            // friend.classList.remove('selected')
+            console.log('----->>>userOnOffLine', friend.dataset.uuid, player);
+        }
+    );
 }
 
 function newMsg(msg) {
@@ -109,4 +120,9 @@ function newMsg(msg) {
 
 function updateUserGameStatus(player, status) {
 
+}
+
+function notifyOffline() {
+    alert("网络连接失败，请重新登陆");
+    window.location.href = 'index.html';
 }

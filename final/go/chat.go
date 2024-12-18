@@ -47,6 +47,14 @@ func newPlayer(w http.ResponseWriter, r *http.Request) (*PlayerInfo, *ChatConn) 
 	}
 	fmt.Printf("------>>>Player connected: %+v\n", player)
 
+	cLock.RLock()
+	oldConn := connCache[player.UUID]
+	if oldConn != nil {
+		oldConn.Close()
+		fmt.Printf("------>>>Old Player disconnected: %+v\n", oldConn.cid)
+	}
+	cLock.RUnlock()
+
 	conn, err := upGrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, "WebSocket 升级失败", http.StatusInternalServerError)
@@ -100,10 +108,17 @@ func reading(conn *ChatConn) {
 		var msg ChatMsg
 		err := conn.ReadJSON(&msg)
 		if err != nil {
+			fmt.Println("------>>>reading error:", err)
 			return
 		}
+		fmt.Println("------>>> read message:", msg)
 
-		fmt.Println("------>>> read message:", msg.From)
+		if msg.Typ == MsgTypePing {
+			msg.Typ = MsgTypePong
+			write(conn, &msg)
+			continue
+		}
+
 		receiverID := msg.To
 
 		pLock.RLock()
@@ -128,7 +143,7 @@ func write(conn *ChatConn, msg *ChatMsg) {
 		closeChatConn(conn)
 		return
 	}
-	fmt.Println("------>>> write message:", msg.To)
+	fmt.Println("------>>> write message:", msg)
 }
 
 func notifyOnOffLine(player *PlayerInfo, typ int) {

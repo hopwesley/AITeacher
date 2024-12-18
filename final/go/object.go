@@ -9,6 +9,8 @@ const (
 	MsgTypUserOnline
 	MsgTypUserOffline
 	MsgTypeUserGameStatus
+	MsgTypePing
+	MsgTypePong
 )
 
 type PlayerInfo struct {

@@ -23,19 +23,35 @@ async function httpService(apiPath, data) {
     }
 }
 
+const keepAliveInterval = 30000; // 每 30 秒发送一次
 function __initSocket(endPoint, player, callback) {
     const params = new URLSearchParams({...player});
     const socket = new WebSocket(`${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}${endPoint}?${params}`);
+
+    let keepAliveTimer;
+
     socket.onopen = () => {
         callback.OnOpen();
+        keepAliveTimer = setInterval(() => {
+            if (socket.readyState === WebSocket.OPEN) {
+                const msg = new ChatMsg(Date.now(),player.uuid,'0','ping',4)
+                socket.send(JSON.stringify(msg)); // 主动发送心跳
+                console.log("发送心跳: ping");
+            }
+        }, keepAliveInterval);
     };
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
+        if (data.typ === 5) {
+            console.log("------>>>收到心跳响应: pong");
+            return
+        }
         callback.OnMessage(data);
     };
 
     socket.onclose = () => {
+        clearInterval(keepAliveTimer); // 停止心跳
         callback.OnClose();
     };
 
