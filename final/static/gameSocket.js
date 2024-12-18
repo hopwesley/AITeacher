@@ -14,5 +14,4 @@ class GameCallback extends WebSocketCallback {
         console.log('游戏连接已断开');
     }
 }
-const gameCallback = new GameCallback();
-const gameSocket = OpenGameConn(gameCallback);
+

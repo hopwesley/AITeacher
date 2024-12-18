@@ -7,8 +7,7 @@ const singInUp = '/signInUp'
 async function httpService(apiPath, data) {
     console.log('------>>>httpService:', apiPath, JSON.stringify(data));
     try {
-        const url = 'http://' + server_host + apiPath;
-        const response = await fetch(url, {
+        const response = await fetch(apiPath, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -25,8 +24,7 @@ async function httpService(apiPath, data) {
 }
 
 function __initSocket(endPoint, callback) {
-    const socket = new WebSocket('ws://' + server_host + endPoint);
-
+    const socket = new WebSocket(`${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}${endPoint}`);
     socket.onopen = () => {
         console.log('WebSocket 连接已打开');
         callback.OnOpen();

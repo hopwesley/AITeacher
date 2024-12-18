@@ -1,9 +1,17 @@
+
+let gameSocket;
+let chatSocket;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const player = loadPlayerInfo();
+    console.log("------>>> player info:", player);
+    gameSocket = OpenGameConn(new GameCallback());
+    chatSocket = OpenChatConn(new ChatCallback());
+});
+
 function selectFriend(element, name, id, highScore) {
-    // 移除所有已选中的样式
     document.querySelectorAll('.friend').forEach(friend => friend.classList.remove('selected'));
-    // 添加选中样式
     element.classList.add('selected');
-    // 更新详情面板内容
     document.getElementById('friendName').textContent = name;
     document.getElementById('friendId').textContent = id;
     document.getElementById('friendHighScore').textContent = highScore;
@@ -35,17 +43,14 @@ function sendMessage() {
 function startBattle() {
     document.querySelector('.container').style.display = 'none'; // 隐藏好友列表界面
     document.getElementById('battleContainer').style.display = 'flex'; // 显示对战界面
-
-    // 初始化或加载对战逻辑
     initBattleGame();
 }
 
 function initBattleGame() {
-    // 初始化双方的游戏画布、分数和等级等
     console.log("对战开始！");
 }
 
-function quitOnlineGame(){
+function quitOnlineGame() {
     document.querySelector('.container').style.display = 'flex'; // 隐藏好友列表界面
     document.getElementById('battleContainer').style.display = 'none'; // 显示对战界面
 }

@@ -14,6 +14,3 @@ class ChatCallback extends WebSocketCallback {
         console.log('聊天连接已断开');
     }
 }
-
-const chatCallback = new ChatCallback();
-const chatSocket = OpenChatConn(chatCallback);

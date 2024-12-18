@@ -29,6 +29,7 @@ async function saveNickname() {
         try {
             const response = await httpService(singInUp, player);
             savePlayerInfo(response);
+            console.log("------>>> player sign in success:", response);
             window.location.href = 'online.html';
         } catch (error) {
             console.error('登录请求失败:', error);
