@@ -18,7 +18,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func matchHandler(w http.ResponseWriter, r *http.Request) {
+func gameHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, "WebSocket 升级失败", http.StatusInternalServerError)
@@ -69,17 +69,34 @@ func matchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func chatHandler(w http.ResponseWriter, r *http.Request) {
+}
+
 func main() {
 
-	// 提供静态文件服务
-	fs := http.FileServer(http.Dir("."))
-	http.Handle("/", fs)
+	 http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
-	http.HandleFunc("/match", matchHandler)
+         // 设置根路由，提供index.html
+         http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+             http.ServeFile(w, r, "./static/signUp.html")
+         })
+
+ http.HandleFunc("/index", func(w http.ResponseWriter, r *http.Request) {
+             http.ServeFile(w, r, "./static/index.html")
+         })
+
+      http.HandleFunc("/online", func(w http.ResponseWriter, r *http.Request) {
+                  http.ServeFile(w, r, "./static/index_online.html")
+              })
+
+	http.HandleFunc("/game", gameHandler)
+	http.HandleFunc("/chat", chatHandler)
+
 
 	fmt.Println("服务器启动，访问地址：http://localhost:8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		fmt.Println("服务器启动失败:", err)
 	}
+
 }
