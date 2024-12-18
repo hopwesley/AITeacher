@@ -65,6 +65,7 @@ func main() {
 
 	http.HandleFunc("/game", gameHandler)
 	http.HandleFunc("/chat", chatHandler)
+	http.HandleFunc("/playerList", currentPlayer)
 	http.HandleFunc("/signInUp", signInUpHandler)
 
 	err := http.ListenAndServe(":8080", nil)

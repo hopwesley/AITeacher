@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Online Tetris Duel</title>
+    <link rel="icon" type="image/x-icon" href="favicon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="dialog.css">
     <link rel="stylesheet" href="online_game.css">
@@ -17,17 +18,13 @@
 <div class="container">
     <div class="friends-list">
         <h2>好友列表</h2>
-        <div class="friend" onclick="selectFriend(this, 'Alice', '12345', 1200)">
-            <strong>Alice</strong>
-            <div class="status">状态: 空闲中</div>
+
+        <div class="friend" id="friendItemTemplate" style="display: none">
+            <strong class="friend_name">Bob</strong>
+            <div class="friend_status">状态: 游戏中</div>
         </div>
-        <div class="friend" onclick="selectFriend(this, 'Bob', '67890', 1500)">
-            <strong>Bob</strong>
-            <div class="status">状态: 游戏中</div>
-        </div>
-        <div class="friend" onclick="selectFriend(this, 'Charlie', '54321', 1000)">
-            <strong>Charlie</strong>
-            <div class="status">状态: 空闲中</div>
+
+        <div class="friend-list-ul" id="friend-list-ul">
         </div>
     </div>
 
@@ -46,6 +43,9 @@
                 <button onclick="sendMessage()">发送</button>
             </div>
         </div>
+    </div>
+    <div>
+        <button onclick="signOut()">退出登录</button>
     </div>
 </div>
 

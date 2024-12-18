@@ -2,6 +2,7 @@ const server_host = '192.168.18.51:8080';///api/uploadScore
 const chatEndpoint = '/chat'
 const gameEndpoint = '/game'
 const singInUp = '/signInUp'
+const playerList = '/playerList'
 
 async function httpService(apiPath, data) {
     console.log('------>>>httpService:', apiPath, JSON.stringify(data));
