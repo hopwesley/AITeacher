@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>匹配玩家并建立对战连接</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        input, button {
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="multiplayerSection" style="margin-top: 20px;">
+    <input id="playerName">
+    <button id="startGame" onclick="startGame()">开始游戏</button>
+    <button id="sendGameState" onclick="sendGameState()">发送本地游戏状态</button>
+    <button id="gameOver" onclick="endGame()">游戏结束</button>
+</div>
+<div id="gameOverMessage" style="display: none;">
+    <h2>游戏结束</h2>
+    <p id="finalScore"></p>
+    <p id="finalResult"></p>
+    <button id="restartButton" onclick="restartGame()">重新开始</button>
+</div>
+<script>
+    let socket;
+    let gameState = {board: [], playerPosition: {row: 0, col: 0}, score: 0};
+
+    // 游戏开始后，建立与对方的 WebSocket 连接
+    function startGame() {
+        let playerName = document.getElementById('playerName').value;
+        socket = new WebSocket('ws://localhost:8080/game?player=' + playerName);
+
+        socket.onopen = function () {
+            console.log('WebSocket 连接已建立');
+        };
+
+        socket.onmessage = function (event) {
+            console.log("----->>> get message from websocket");
+            const data = JSON.parse(event.data);
+            if (data.type === 'updateState') {
+                // 更新对方的游戏状态
+                updateOpponentState(data.gameState);
+            } else if (data.type === 'gameOver') {
+                // 显示对战结果
+                showGameOver(data.message);
+            }
+        };
+
+        socket.onclose = function () {
+            console.log('WebSocket 连接关闭');
+        };
+    }
+
+    // 游戏状态变化时，发送给对方
+    function sendGameState() {
+        socket.send(JSON.stringify({
+            type: 'updateState',
+            gameState: gameState
+        }));
+        console.log("----->>> send game state to peer")
+    }
+
+    // 更新对方的游戏状态
+    function updateOpponentState(newState) {
+        // 更新本地的游戏状态
+        gameState = newState;
+        console.log("------>>>>更新游戏状态", newState);
+    }
+
+    function endGame() {
+        socket.send(JSON.stringify({
+            type: 'gameOver',
+        }));
+        console.log("----->>> send game state to peer")
+    }
+
+    function showGameOver(message) {
+        const gameOverMessage = document.getElementById('gameOverMessage');
+        const finalScore = document.getElementById('finalScore');
+        const finalResult = document.getElementById('finalResult');
+        const playerScore = 100;
+        const opponentScore = 200;
+        // 假设 playerScore 和 opponentScore 是当前玩家和对手的得分
+        finalScore.textContent = `你的得分: ${playerScore}  对手得分: ${opponentScore}`;
+        finalResult.textContent = message;  // 显示胜负结果
+
+        gameOverMessage.style.display = 'block'; // 显示游戏结束的消息
+    }
+
+    function restartGame() {
+        // 重置游戏状态，准备新一轮对战
+        const gameOverMessage = document.getElementById('gameOverMessage');
+        gameOverMessage.style.display = 'none';  // 隐藏游戏结束信息
+    }
+</script>
+</body>
+</html>
