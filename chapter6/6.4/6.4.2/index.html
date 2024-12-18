@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>匹配玩家并建立对战连接</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        input, button {
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="multiplayerSection" style="margin-top: 20px;">
+    <input id="playerName" >
+    <button id="startGame" onclick="startGame()">开始游戏</button>
+    <button id="sendGameState" onclick="sendGameState()">发送本地游戏状态</button>
+</div>
+
+<script>
+    let socket;
+    let gameState = { board: [], playerPosition: {row: 0, col: 0}, score: 0 };
+
+    // 游戏开始后，建立与对方的 WebSocket 连接
+    function startGame() {
+        let playerName = document.getElementById('playerName').value;
+        socket = new WebSocket('ws://localhost:8080/game?player=' + playerName);
+
+        socket.onopen = function () {
+            console.log('WebSocket 连接已建立');
+        };
+
+        socket.onmessage = function (event) {
+            console.log("----->>> get message from websocket");
+            const data = JSON.parse(event.data);
+            if (data.type === 'updateState') {
+                // 更新对方的游戏状态
+                updateOpponentState(data.gameState);
+            }
+        };
+
+        socket.onclose = function () {
+            console.log('WebSocket 连接关闭');
+        };
+    }
+    // 游戏状态变化时，发送给对方
+    function sendGameState() {
+        socket.send(JSON.stringify({
+            type: 'updateState',
+            gameState: gameState
+        }));
+        console.log("----->>> send game state to peer")
+    }
+
+    // 更新对方的游戏状态
+    function updateOpponentState(newState) {
+        // 更新本地的游戏状态
+        gameState = newState;
+        renderGame();
+        console.log("------>>>>更新游戏状态",newState );
+    }
+
+    function renderGame() {
+    }
+
+</script>
+</body>
+</html>
