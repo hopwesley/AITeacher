@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"net/http"
@@ -30,10 +31,32 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 func chatHandler(w http.ResponseWriter, r *http.Request) {
 }
 
+func signInUpHandler(w http.ResponseWriter, r *http.Request) {
+
+	var player PlayerInfo
+	err := json.NewDecoder(r.Body).Decode(&player)
+	if err != nil {
+		http.Error(w, "Invalid player info", http.StatusBadRequest)
+		return
+	}
+
+	newPlayerInfo, err := SignInOrUp(player.UUID, player.PlayerName)
+	if err != nil {
+		http.Error(w, "database error", http.StatusBadRequest)
+		return
+	}
+
+	bts, _ := json.Marshal(newPlayerInfo)
+	w.WriteHeader(http.StatusCreated)
+	_, _ = w.Write(bts)
+}
+
 func main() {
+	initDB()
+	defer closeDB()
 
 	http.Handle("/", http.FileServer(http.Dir("./static")))
-
+	http.Handle("/sounds/", http.StripPrefix("/sounds/", http.FileServer(http.Dir("./sounds"))))
 	http.HandleFunc("/index", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/index.html")
 	})
@@ -44,11 +67,10 @@ func main() {
 
 	http.HandleFunc("/game", gameHandler)
 	http.HandleFunc("/chat", chatHandler)
+	http.HandleFunc("/signInUp", signInUpHandler)
 
-	fmt.Println("服务器启动，访问地址：http://localhost:8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		fmt.Println("服务器启动失败:", err)
 	}
-
 }

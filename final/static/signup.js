@@ -1,54 +1,41 @@
-
 document.addEventListener('DOMContentLoaded', () => {
-    const saveNicknameButton = document.getElementById('saveNicknameButton');
+    const saveBtn = document.getElementById('saveNicknameButton');
+    const nicknameInput = document.getElementById('nicknameInput');
+    const player = loadPlayerInfo();
+    if (player) {
+        nicknameInput.value = player.name;
+        saveBtn.textContent = '登录';
+    }
+});
+
+async function saveNickname() {
     const nicknameInput = document.getElementById('nicknameInput');
     const gameModeRadios = document.getElementsByName('gameMode');
 
-    // 检查本地缓存中的昵称和 UUID
-    const storedNickname = localStorage.getItem('playerName');
-    let uuid = localStorage.getItem('uuid');
-
-    if (!uuid) {
-        // 如果 UUID 不存在，生成并保存新的 UUID
-        uuid = generateUUID();
-        localStorage.setItem('uuid', uuid);
+    const nickname = nicknameInput.value.trim();
+    if (!nickname) {
+        alert('请输入有效的昵称！');
+        return;
+    }
+    let player = loadPlayerInfo();
+    if (!player) {
+        player = new PlayerInfo(nickname, generateUUID());
     }
 
-    if (storedNickname) {
-        nicknameInput.value = storedNickname;
-        saveNicknameButton.textContent = '登录';
+    const selectedMode = Array.from(gameModeRadios).find(radio => radio.checked).value;
+    if (selectedMode === 'single') {
+        window.location.href = 'offline.html';
+    } else if (selectedMode === 'online') {
+        try {
+            const response = await httpService(singInUp, player);
+            savePlayerInfo(response);
+            window.location.href = 'online.html';
+        } catch (error) {
+            console.error('登录请求失败:', error);
+            alert('登录失败，请检查网络连接！' + error);
+        }
     }
-
-    // 保存昵称并处理跳转逻辑
-    window.saveNickname = async () => {
-        const nickname = nicknameInput.value.trim();
-        if (!nickname) {
-            alert('请输入有效的昵称！');
-            return;
-        }
-
-        localStorage.setItem('playerName', nickname);
-
-        const selectedMode = Array.from(gameModeRadios).find(radio => radio.checked).value;
-
-        if (selectedMode === 'single') {
-            window.location.href = 'offline.html';
-        } else if (selectedMode === 'online') {
-            try {
-                const response = await httpService('/api/login', { nickname, uuid });
-                if (response.success) {
-                    alert('登录成功！');
-                    window.location.href = 'online.html';
-                } else {
-                    alert(`登录失败：${response.message}`);
-                }
-            } catch (error) {
-                console.error('登录请求失败:', error);
-                alert('登录失败，请检查网络连接！');
-            }
-        }
-    };
-});
+}
 
 // 生成 UUID 的函数
 function generateUUID() {

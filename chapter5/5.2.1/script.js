@@ -398,11 +398,11 @@ async function loadSound(name, url) {
 }
 
 async function initSounds() {
-    await loadSound('move', '../../sounds/move.wav');
-    await loadSound('rotate', '../../sounds/rotate_sound.wav');
-    await loadSound('drop', '../../sounds/drop_sound.wav');
-    await loadSound('clear', '../../sounds/clear_sound.wav');
-    await loadSound('gameOver', '../../sounds/game_over.wav');
+    await loadSound('move', '../../final/sounds/move.wav');
+    await loadSound('rotate', '../../final/sounds/rotate_sound.wav');
+    await loadSound('drop', '../../final/sounds/drop_sound.wav');
+    await loadSound('clear', '../../final/sounds/clear_sound.wav');
+    await loadSound('gameOver', '../../final/sounds/game_over.wav');
 }
 
 function playSound(name) {

@@ -1,11 +1,14 @@
-const server_host = '192.168.18.51';///api/uploadScore
+const server_host = '192.168.18.51:8080';///api/uploadScore
 const chatEndpoint = '/chat'
 const gameEndpoint = '/game'
+const singInUp = '/signInUp'
+
 
 async function httpService(apiPath, data) {
     console.log('------>>>httpService:', apiPath, JSON.stringify(data));
     try {
-        const response = await fetch('http://'+server_host + apiPath, {
+        const url = 'http://' + server_host + apiPath;
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

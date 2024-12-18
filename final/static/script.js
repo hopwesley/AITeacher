@@ -52,11 +52,6 @@ class Tetromino {
 
             // 检查游戏是否结束
             if (!isValidMove(board, currentTetromino.shape, currentTetromino.position)) {
-                uploadScore().then(result => {
-                    alert("上传积分成功！")
-                }).catch(error => {
-                    alert("上传积分错误:"+error);
-                });
                 resetGame(); // 调用游戏结束逻辑
             }
             return true; // 表示不能再下落
@@ -147,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedBgColor) {
         document.body.style.backgroundColor = savedBgColor;
     }
-    particleColor = localStorage.getItem('blockColor') || 'red';
+    particleColor = localStorage.getItem('blockColor') || '#ff0000';
     document.getElementById('blockColorPicker').value = particleColor;
 });
 
@@ -471,11 +466,11 @@ async function loadSound(name, url) {
 
 async function initSounds() {
     initAudioContext();
-    await loadSound('move', '../../sounds/move.wav');
-    await loadSound('rotate', '../../sounds/rotate_sound.wav');
-    await loadSound('drop', '../../sounds/drop_sound.wav');
-    await loadSound('clear', '../../sounds/clear_sound.wav');
-    await loadSound('gameOver', '../../sounds/game_over.wav');
+    await loadSound('move', '/sounds/move.wav');
+    await loadSound('rotate', '/sounds/rotate_sound.wav');
+    await loadSound('drop', '/sounds/drop_sound.wav');
+    await loadSound('clear', '/sounds/clear_sound.wav');
+    await loadSound('gameOver', '/sounds/game_over.wav');
 }
 
 function initAudioContext() {
@@ -565,23 +560,4 @@ function saveCustomization() {
     particleColor = document.getElementById('blockColorPicker').value;
     localStorage.setItem('particleColor', particleColor);
     alert('个性化设置已保存！');
-}
-
-let totalLineCleared = 0;
-
-async function uploadScore() {
-
-    const playerName = localStorage.getItem('playerName');
-    const uuid = localStorage.getItem('uuid');
-
-    const data = {
-        nickname: playerName,
-        uuid: uuid,
-        score: score,
-        level: level,
-        linesCleared: totalLineCleared,
-        timestamp: new Date().toISOString()
-    };
-
-    await httpService('/api/uploadScore', data);
 }
