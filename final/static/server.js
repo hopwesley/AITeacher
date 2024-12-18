@@ -1,22 +1,11 @@
-// const server_host = 'http://192.168.18.51';///api/uploadScore
-const server_host = 'http://192.168.18.51';///api/uploadScore
+const server_host = '192.168.18.51';///api/uploadScore
+const chatEndpoint = '/chat'
+const gameEndpoint = '/game'
 
-/*
-    const playerName = localStorage.getItem('playerName') || 'Guest';
-*  const data = {
-        name: playerName,
-        score: score,
-        level: level,
-        linesCleared: linesCleared,
-        date: new Date().toISOString()
-    };
-* */
-
-// 异步 httpService 函数
 async function httpService(apiPath, data) {
     console.log('------>>>httpService:', apiPath, JSON.stringify(data));
     try {
-        const response = await fetch(server_host + apiPath, {
+        const response = await fetch('http://'+server_host + apiPath, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -32,22 +21,55 @@ async function httpService(apiPath, data) {
     }
 }
 
-const socket = new WebSocket('wss://192.168.18.51/game');
+function __initSocket(endPoint, callback) {
+    const socket = new WebSocket('ws://' + server_host + endPoint);
 
-socket.onopen = () => {
-    console.log('WebSocket 连接已打开');
-};
+    socket.onopen = () => {
+        console.log('WebSocket 连接已打开');
+        callback.OnOpen();
+    };
 
-socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log('接收到的数据:', data);
-};
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log('接收到的数据:', data);
+        callback.OnMessage(data);
+    };
 
-socket.onclose = () => {
-    console.log('WebSocket 连接已关闭');
-};
+    socket.onclose = () => {
+        console.log('WebSocket 连接已关闭');
+        callback.OnClose();
+    };
 
-// 发送数据到服务器
-function sendPlayerData(playerData) {
-    socket.send(JSON.stringify(playerData));
+    return socket;
+}
+
+function OpenChatConn(callbackInstance) {
+    if (!(callbackInstance instanceof WebSocketCallback)) {
+        throw new Error('callbackInstance 必须是 WebSocketCallback 的实例');
+    }
+    return __initSocket(chatEndpoint, callbackInstance);
+}
+
+function OpenGameConn(callbackInstance) {
+    if (!(callbackInstance instanceof WebSocketCallback)) {
+        throw new Error('callbackInstance 必须是 WebSocketCallback 的实例');
+    }
+    return __initSocket(gameEndpoint, callbackInstance);
+}
+
+class WebSocketCallback {
+    OnOpen() {
+        // WebSocket 连接打开时的逻辑
+        console.log('WebSocket 连接已打开');
+    }
+
+    OnMessage(data) {
+        // 接收到消息时的逻辑
+        console.log('收到的数据:', data);
+    }
+
+    OnClose() {
+        // WebSocket 连接关闭时的逻辑
+        console.log('WebSocket 连接已关闭');
+    }
 }

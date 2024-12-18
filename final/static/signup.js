@@ -32,15 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedMode = Array.from(gameModeRadios).find(radio => radio.checked).value;
 
         if (selectedMode === 'single') {
-            // 单机模式，跳转到 index.html
-            window.location.href = 'index.html';
+            window.location.href = 'offline.html';
         } else if (selectedMode === 'online') {
-            // 联机模式，调用 httpService 验证用户信息并上传 UUID
             try {
                 const response = await httpService('/api/login', { nickname, uuid });
                 if (response.success) {
                     alert('登录成功！');
-                    window.location.href = 'index_online.html';
+                    window.location.href = 'online.html';
                 } else {
                     alert(`登录失败：${response.message}`);
                 }
