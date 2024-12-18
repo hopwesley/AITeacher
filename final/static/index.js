@@ -24,13 +24,13 @@ async function saveNickname() {
 
     const selectedMode = Array.from(gameModeRadios).find(radio => radio.checked).value;
     if (selectedMode === 'single') {
-        window.location.href = 'offline.html';
+        window.location.href = 'offline_game.html';
     } else if (selectedMode === 'online') {
         try {
             const response = await httpService(singInUp, player);
             savePlayerInfo(response);
             console.log("------>>> player sign in success:", response);
-            window.location.href = 'online.html';
+            window.location.href = 'online_game.html';
         } catch (error) {
             console.error('登录请求失败:', error);
             alert('登录失败，请检查网络连接！' + error);

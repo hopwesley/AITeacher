@@ -3,7 +3,6 @@ const chatEndpoint = '/chat'
 const gameEndpoint = '/game'
 const singInUp = '/signInUp'
 
-
 async function httpService(apiPath, data) {
     console.log('------>>>httpService:', apiPath, JSON.stringify(data));
     try {
@@ -23,39 +22,37 @@ async function httpService(apiPath, data) {
     }
 }
 
-function __initSocket(endPoint, callback) {
-    const socket = new WebSocket(`${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}${endPoint}`);
+function __initSocket(endPoint, player, callback) {
+    const params = new URLSearchParams({...player});
+    const socket = new WebSocket(`${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}${endPoint}?${params}`);
     socket.onopen = () => {
-        console.log('WebSocket 连接已打开');
         callback.OnOpen();
     };
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('接收到的数据:', data);
         callback.OnMessage(data);
     };
 
     socket.onclose = () => {
-        console.log('WebSocket 连接已关闭');
         callback.OnClose();
     };
 
     return socket;
 }
 
-function OpenChatConn(callbackInstance) {
+function OpenChatConn(player, callbackInstance) {
     if (!(callbackInstance instanceof WebSocketCallback)) {
         throw new Error('callbackInstance 必须是 WebSocketCallback 的实例');
     }
-    return __initSocket(chatEndpoint, callbackInstance);
+    return __initSocket(chatEndpoint, player, callbackInstance);
 }
 
-function OpenGameConn(callbackInstance) {
+function OpenGameConn(player, callbackInstance) {
     if (!(callbackInstance instanceof WebSocketCallback)) {
         throw new Error('callbackInstance 必须是 WebSocketCallback 的实例');
     }
-    return __initSocket(gameEndpoint, callbackInstance);
+    return __initSocket(gameEndpoint, player, callbackInstance);
 }
 
 class WebSocketCallback {

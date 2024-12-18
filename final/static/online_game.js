@@ -1,13 +1,18 @@
-
 let gameSocket;
 let chatSocket;
+let player;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const player = loadPlayerInfo();
+    player = loadPlayerInfo();
+    if (!player) {
+        alert("failed to load player infos");
+        return;
+    }
     console.log("------>>> player info:", player);
-    gameSocket = OpenGameConn(new GameCallback());
-    chatSocket = OpenChatConn(new ChatCallback());
+    // gameSocket = OpenGameConn(new GameCallback());
+    chatSocket = OpenChatConn(player, new ChatCallback());
 });
+
 
 function selectFriend(element, name, id, highScore) {
     document.querySelectorAll('.friend').forEach(friend => friend.classList.remove('selected'));

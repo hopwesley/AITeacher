@@ -29,16 +29,6 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 }
 
-func chatHandler(w http.ResponseWriter, r *http.Request) {
-	conn, err := upGrader.Upgrade(w, r, nil)
-	if err != nil {
-		http.Error(w, "WebSocket 升级失败", http.StatusInternalServerError)
-		return
-	}
-	fmt.Println("------>>> chat socket created:")
-	defer conn.Close()
-}
-
 func signInUpHandler(w http.ResponseWriter, r *http.Request) {
 
 	var player PlayerInfo
@@ -70,7 +60,7 @@ func main() {
 	})
 
 	http.HandleFunc("/online", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/index_online.html")
+		http.ServeFile(w, r, "./static/online_game.html")
 	})
 
 	http.HandleFunc("/game", gameHandler)
