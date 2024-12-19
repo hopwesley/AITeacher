@@ -25,6 +25,10 @@ async function httpService(apiPath, data) {
 
 const keepAliveInterval = 30000; // 每 30 秒发送一次
 function __initSocket(endPoint, player, callback) {
+    if (!(callback instanceof WebSocketCallback)) {
+        throw new Error('callbackInstance 必须是 WebSocketCallback 的实例');
+    }
+
     const params = new URLSearchParams({...player});
     const socket = new WebSocket(`${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}${endPoint}?${params}`);
 
@@ -34,7 +38,7 @@ function __initSocket(endPoint, player, callback) {
         callback.OnOpen();
         keepAliveTimer = setInterval(() => {
             if (socket.readyState === WebSocket.OPEN) {
-                const msg = new ChatMsg(Date.now(), player.uuid, '0', 'ping', MsgTyp.MsgTypePing)
+                const msg = new ChatMsg(Date.now(), player.uuid, '0', 'ping', MsgTyp.Ping)
                 socket.send(JSON.stringify(msg)); // 主动发送心跳
                 console.log("发送心跳: ping");
             }
@@ -43,7 +47,7 @@ function __initSocket(endPoint, player, callback) {
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (data.typ === MsgTyp.MsgTypePong) {
+        if (data.typ === MsgTyp.Pong) {
             console.log("------>>>收到心跳响应: pong");
             return
         }
@@ -59,17 +63,11 @@ function __initSocket(endPoint, player, callback) {
 }
 
 function OpenChatConn(player, callbackInstance) {
-    if (!(callbackInstance instanceof WebSocketCallback)) {
-        throw new Error('callbackInstance 必须是 WebSocketCallback 的实例');
-    }
     return __initSocket(chatEndpoint, player, callbackInstance);
 }
 
-function OpenGameConn(player, callbackInstance) {
-    if (!(callbackInstance instanceof WebSocketCallback)) {
-        throw new Error('callbackInstance 必须是 WebSocketCallback 的实例');
-    }
-    return __initSocket(gameEndpoint, player, callbackInstance);
+function OpenGameConn(param, callbackInstance) {
+    return __initSocket(gameEndpoint, param, callbackInstance);
 }
 
 class WebSocketCallback {

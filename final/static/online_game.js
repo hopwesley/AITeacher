@@ -10,13 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
         return;
     }
-    // gameSocket = OpenGameConn(new GameCallback());
     chatSocket = OpenChatConn(player, new ChatCallback());
-    loadOnlinePlayers().then(r => {
+    loadOnlinePlayers().then(() => {
         console.log("------>>> check online player success");
     });
 
-    document.getElementById('chatInput').addEventListener('keydown', function(event) {
+    document.getElementById('chatInput').addEventListener('keydown', function (event) {
         if (event.key === 'Enter') {
             sendMessage();
         }
@@ -90,12 +89,18 @@ function selectFriend(element, obj) {
 }
 
 function inviteFriend() {
-    const friendName = document.getElementById('friendName').textContent;
-    if (friendName !== '-') {
-        alert(`已向 ${friendName} 发送对战邀请！`);
-        startBattle();
-    } else {
+    const peerID = document.getElementById('friendId').textContent.trim();
+    if (peerID === '-') {
         alert('请先选择一个好友！');
+        return;
+    }
+    showWaitingStatus();
+    try {
+        const msg = new ChatMsg(Date.now(), player.uuid, peerID, player.name, MsgTyp.InviteGame);
+        chatSocket.send(JSON.stringify(msg));
+    } catch (e) {
+        alert(e)
+        hideWaitingStatus();
     }
 }
 
@@ -111,15 +116,14 @@ function sendMessage() {
         return;
     }
 
-    const chatMsg = new ChatMsg(Date.now(), player.uuid, peerUUID, message, MsgTyp.MsgTypChat);
+    const chatMsg = new ChatMsg(Date.now(), player.uuid, peerUUID, message, MsgTyp.Chat);
     cacheData(chatMsg.to, chatMsg);
 
     const chatMessages = document.getElementById('chatMessages');
     newChatItemDiv(chatMessages, `你: ${message}`, true);
     input.value = '';
 
-    const msg = new ChatMsg(Date.now(), player.uuid, peerUUID, message, MsgTyp.MsgTypChat);
-    chatSocket.send(JSON.stringify(msg));
+    chatSocket.send(JSON.stringify(chatMsg));
 }
 
 function newChatItemDiv(chatMessages, msg, isMine = false) {
@@ -188,15 +192,87 @@ function newMsg(chatMsg) {
     if (currentPeer !== chatMsg.from) {
         return;
     }
+
     const peerName = document.getElementById('friendName').textContent.trim();
     const chatMessages = document.getElementById('chatMessages');
     newChatItemDiv(chatMessages, `${peerName}: ${chatMsg.msg}`);
 }
 
-function updateUserGameStatus(player, status) {
-
+function gotGameInvite(chatMsg) {
+    if (chatMsg.to !== player.uuid) {
+        console.warn("------>>>wrong game invite message:", chatMsg);
+        return;
+    }
+    showInviteOverlay(chatMsg.from, chatMsg.msg);
 }
 
 function notifyOffline() {
     window.location.href = 'index.html';
+}
+
+function showWaitingStatus() {
+    document.getElementById('waitingOverlay').style.display = 'block';
+}
+
+function hideWaitingStatus() {
+    document.getElementById('waitingOverlay').style.display = 'none';
+}
+
+// 显示邀请弹窗
+function showInviteOverlay(opponentUuid, opponentName) {
+    const inviteMessage = document.getElementById('inviteMessage');
+    inviteMessage.querySelector(".opponentName").textContent = opponentName;
+    document.getElementById('inviteOverlay').style.display = 'flex';
+    inviteMessage.dataset.uuid = opponentUuid;
+}
+
+// 隐藏邀请弹窗
+function hideInviteOverlay() {
+    document.getElementById('inviteOverlay').style.display = 'none';
+}
+
+// 同意邀请的逻辑
+function acceptInvite() {
+    hideInviteOverlay();
+    const inviteMessage = document.getElementById('inviteMessage');
+    const peerID = inviteMessage.dataset.uuid;
+    if (!peerID) {
+        alert("invalid peer id for accepts");
+        return
+    }
+    showWaitingStatus();
+    const gameRoomID = generateUUID();
+    const msg = new ChatMsg(Date.now(), player.uuid, peerID, gameRoomID, MsgTyp.AcceptGame);
+    chatSocket.send(JSON.stringify(msg));
+
+    const gameJoin = new GameJoin(player.uuid, gameRoomID);
+    gameSocket = OpenGameConn(gameJoin, new GameCallback());
+}
+
+// 拒绝邀请的逻辑
+function declineInvite() {
+    hideInviteOverlay();
+    const inviteMessage = document.getElementById('inviteMessage');
+    const peerID = inviteMessage.dataset.uuid;
+    if (!peerID) {
+        alert("invalid peer id for accepts");
+        return
+    }
+
+    const msg = new ChatMsg(Date.now(), player.uuid, peerID, player.name, MsgTyp.RejectGame);
+    chatSocket.send(JSON.stringify(msg));
+}
+
+function GameResult(chatMsg) {
+
+    hideWaitingStatus();
+    if (chatMsg.typ === MsgTyp.RejectGame) {
+        alert("对方拒绝邀请");
+        return
+    }
+    
+    const gameJoin = new GameJoin(player.uuid, chatMsg.msg);
+    gameSocket = OpenGameConn(gameJoin, new GameCallback());
+
+    startBattle();
 }

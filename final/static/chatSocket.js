@@ -9,15 +9,16 @@ class ChatCallback extends WebSocketCallback {
         super.OnMessage(data);
 
         const msg = new ChatMsg(data.mid, data.from, data.to, data.msg, data.typ);
-        if (msg.typ === MsgTyp.MsgTypUserOnline || msg.typ === MsgTyp.MsgTypUserOffline) {
+        if (msg.typ === MsgTyp.UserOnline || msg.typ === MsgTyp.UserOffline) {
             const playerInfo = JSON.parse(data.msg);
             const player = new PlayerInfo(playerInfo.name, playerInfo.uuid, playerInfo.score, playerInfo.cTime);
             userOnOffLine(msg.typ === 1, player);
-        } else if (msg.typ === MsgTyp.MsgTypChat) {
+        } else if (msg.typ === MsgTyp.Chat) {
             newMsg(msg);
-        } else if (msg.typ === MsgTyp.MsgTypeUserGameStatus) {
-            const playerInfo = JSON.parse(data.msg);
-            updateUserGameStatus(playerInfo.to, playerInfo.status);
+        } else if (msg.typ === MsgTyp.InviteGame) {
+            gotGameInvite(msg);
+        }else if (msg.typ === MsgTyp.AcceptGame ||msg.typ === MsgTyp.RejectGame){
+            GameResult(msg);
         }
     }
 

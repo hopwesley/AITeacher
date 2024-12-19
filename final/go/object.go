@@ -8,9 +8,13 @@ const (
 	MsgTypChat = iota
 	MsgTypUserOnline
 	MsgTypUserOffline
-	MsgTypeUserGameStatus
+	MsgTypeUserInGame
+	MsgTypeUserIdle
 	MsgTypePing
 	MsgTypePong
+	MsgTypeInviteGame
+	MsgTypeAcceptGame
+	MsgTypeRejectGame
 )
 
 type PlayerInfo struct {
@@ -27,4 +31,9 @@ type ChatMsg struct {
 	To   string `json:"to"`
 	Msg  string `json:"msg"`
 	Typ  int    `json:"typ"`
+}
+
+type GameJoin struct {
+	PlayerID string `json:"playerID"`
+	GameID   string `json:"gameID"`
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -21,34 +20,10 @@ var connCache = make(map[string]*ChatConn)
 var mLock sync.RWMutex
 var msgCache = make(map[int64]*ChatMsg)
 
-func newPlayer(w http.ResponseWriter, r *http.Request) (*PlayerInfo, *ChatConn) {
-	queryParams := r.URL.Query()
-
-	cTimeStr := queryParams.Get("cTime")
-	cTime, err := strconv.ParseInt(cTimeStr, 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid player create time", http.StatusInternalServerError)
-		return nil, nil
-	}
-
-	scoreStr := queryParams.Get("score")
-	score, err := strconv.Atoi(scoreStr)
-	if err != nil {
-		http.Error(w, "Invalid player score", http.StatusInternalServerError)
-		return nil, nil
-	}
-
-	player := &PlayerInfo{
-		UUID:       queryParams.Get("uuid"),
-		PlayerName: queryParams.Get("name"),
-		CTime:      cTime,
-		HighScore:  score,
-		Status:     PlayerStatusIdle,
-	}
-	fmt.Printf("------>>>Player connected: %+v\n", player)
+func chatConn(w http.ResponseWriter, r *http.Request, uuid string) *ChatConn {
 
 	cLock.RLock()
-	oldConn := connCache[player.UUID]
+	oldConn := connCache[uuid]
 	if oldConn != nil {
 		oldConn.Close()
 		fmt.Printf("------>>>Old Player disconnected: %+v\n", oldConn.cid)
@@ -58,40 +33,36 @@ func newPlayer(w http.ResponseWriter, r *http.Request) (*PlayerInfo, *ChatConn) 
 	conn, err := upGrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, "WebSocket 升级失败", http.StatusInternalServerError)
-		return nil, nil
+		return nil
 	}
 
 	chatConn := &ChatConn{
 		Conn: conn,
-		cid:  player.UUID,
+		cid:  uuid,
 	}
 	cLock.Lock()
-	connCache[player.UUID] = chatConn
+	connCache[uuid] = chatConn
 	cLock.Unlock()
 
-	pLock.Lock()
-	playerCache[player.UUID] = player
-	pLock.Unlock()
-
-	return player, chatConn
+	return chatConn
 }
 
 func closeChatConn(conn *ChatConn) {
-	pLock.Lock()
-	player := playerCache[conn.cid]
-	go notifyOnOffLine(player, MsgTypUserOffline)
-	delete(playerCache, conn.cid)
-	pLock.Unlock()
-
-	fmt.Println("------>>> close connection:", conn.cid)
+	removePlayerInfo(conn.cid)
 	cLock.Lock()
+	defer cLock.Unlock()
 	conn.Close()
 	delete(connCache, conn.cid)
-	cLock.Unlock()
+	fmt.Println("------>>> close connection:", conn.cid)
 }
 
 func chatHandler(w http.ResponseWriter, r *http.Request) {
-	player, conn := newPlayer(w, r)
+	player := newPlayer(w, r)
+	if player == nil {
+		return
+	}
+
+	conn := chatConn(w, r, player.UUID)
 	if conn == nil {
 		return
 	}

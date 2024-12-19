@@ -2,6 +2,7 @@ class GameCallback extends WebSocketCallback {
     OnOpen() {
         super.OnOpen();
         console.log('游戏连接已准备好');
+        // document.getElementById('waitingStatus').textContent="建立连接.....";
     }
 
     OnMessage(data) {

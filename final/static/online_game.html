@@ -84,5 +84,23 @@
         <button id="quitFromGame" class="quitOnlineGame" onclick="quitOnlineGame()">退出游戏</button>
     </div>
 </div>
+
+<div id="waitingOverlay" class="waiting-overlay" style="display: none;">
+    <div id="waitingStatus" class="waiting-status">
+        正在等待对战链接...
+    </div>
+</div>
+
+<div class="invite-overlay" id="inviteOverlay" style="display: none">
+    <div class="invite-dialog">
+        <h3>对战邀请</h3>
+        <p id="inviteMessage">你收到了来自 <strong class="opponentName"></strong> 的对战邀请！</p>
+        <div class="invite-buttons">
+            <button id="acceptInvite" onclick="acceptInvite()">同意</button>
+            <button id="declineInvite" onclick="declineInvite()">拒绝</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

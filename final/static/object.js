@@ -1,7 +1,7 @@
 const __db_player_key = "__db_player_key__"
 
 class PlayerInfo {
-    constructor(name, uuid, score = 0, cTime = Math.floor(Date.now() / 1000),status = 0) {
+    constructor(name, uuid, score = 0, cTime = Math.floor(Date.now() / 1000), status = 0) {
         this.name = name;          // 玩家名称
         this.uuid = uuid;          // 玩家唯一标识符
         this.score = score;        // 当前分数，默认为0
@@ -71,10 +71,30 @@ class ChatMsg {
 }
 
 const MsgTyp = {
-    MsgTypChat: 0,
-    MsgTypUserOnline: 1,
-    MsgTypUserOffline: 2,
-    MsgTypeUserGameStatus: 3,
-    MsgTypePing: 4,
-    MsgTypePong: 5
+    Chat: 0,
+    UserOnline: 1,
+    UserOffline: 2,
+    UserInGame: 3,
+    UserIdle: 4,
+    Ping: 5,
+    Pong: 6,
+    InviteGame: 7,
+    AcceptGame: 8,
+    RejectGame: 9
 };
+
+class GameJoin {
+    constructor(playerID,gameID) {
+        this.playerID = playerID;
+        this.gameID = gameID;
+    }
+}
+
+// 生成 UUID 的函数
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
