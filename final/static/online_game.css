@@ -35,6 +35,7 @@ body {
 }
 
 .friend {
+    position: relative;
     padding: 0.8em;
     background-color: #fff;
     margin-bottom: 0.5em;
@@ -277,4 +278,15 @@ body {
 
 .invite-buttons button#declineInvite:hover {
     background-color: #e53935;
+}
+
+.message-dot {
+    display: none;
+    position: absolute;
+    top: 8px;               /* 根据实际情况调整位置 */
+    right: 8px;             /* 根据实际情况调整位置 */
+    width: 10px;
+    height: 10px;
+    background-color: red;  /* 小红点颜色 */
+    border-radius: 50%;     /* 圆形外观 */
 }

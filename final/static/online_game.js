@@ -71,6 +71,7 @@ function cacheData(uuid, msg) {
 function selectFriend(element, obj) {
     document.querySelectorAll('.friend').forEach(friend => friend.classList.remove('selected'));
     element.classList.add('selected');
+    element.querySelector(".message-dot").style.display = 'none';
     document.getElementById('friendName').textContent = obj.name;
     document.getElementById('friendId').textContent = obj.uuid;
     document.getElementById('friendHighScore').textContent = obj.score;
@@ -190,6 +191,10 @@ function newMsg(chatMsg) {
     cacheData(chatMsg.from, chatMsg);
     const currentPeer = document.getElementById('friendId').textContent.trim();
     if (currentPeer !== chatMsg.from) {
+        const element = document.querySelector(`div[data-uuid="${chatMsg.from}"]`);
+        if (element){
+            element.querySelector(".message-dot").style.display = 'block';
+        }
         return;
     }
 
@@ -280,9 +285,7 @@ function GameStarting(msg){
 }
 
 function Gaming(data,seq){
-
 }
 
 function GameOvering(data){
-
 }
