@@ -2,7 +2,9 @@ let gamePaused = true;
 let highScore = localStorage.getItem('highScore') || 0;
 let totalGames = localStorage.getItem('totalGames') || 0;
 let totalScore = parseInt(localStorage.getItem('totalScore3')) || 0;
-
+let lastTime = 0;
+let score = 0;
+let dropCounter = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('tetrisCanvas');

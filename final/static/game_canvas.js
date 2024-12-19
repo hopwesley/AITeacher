@@ -1,23 +1,15 @@
 const ROWS = 20;
 const COLS = 10;
 const BLOCK_SIZE = 32;
+const LEVEL_THRESHOLD = 500;  // 每500分提升一个难度级别
 
 let context;
 let nextContext;
 let board;
 let currentTetromino;
 let nextTetromino;
-let dropCounter = 0;
 let level = 1;            // 初始难度级别
 let dropInterval = 1000;  // 初始下落间隔（以毫秒为单位）
-const LEVEL_THRESHOLD = 500;  // 每500分提升一个难度级别
-
-let lastTime = 0;
-let score = 0;
-
-
-
-
 
 // 定义 Tetromino 类
 class Tetromino {
@@ -37,14 +29,14 @@ class Tetromino {
             });
         });
     }
+
     moveDown() {
         this.position.row++;
         if (!isValidMove(board, this.shape, this.position)) {
             this.position.row--;
             mergeBoard(board, this.shape, this.position);
-            clearLines(); // 添加行消除逻辑
+            clearLines();
 
-            // 生成新的方块
             currentTetromino = nextTetromino;
             currentTetromino.position = {
                 row: 0,
@@ -53,7 +45,6 @@ class Tetromino {
             nextTetromino = randomTetromino();
             drawNextTetromino();
 
-            // 检查游戏是否结束
             if (!isValidMove(board, currentTetromino.shape, currentTetromino.position)) {
                 resetGame(); // 调用游戏结束逻辑
             }
