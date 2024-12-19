@@ -74,7 +74,7 @@ function resetGame() {
     // 暂停游戏
     gamePaused = true;
     changeGameStatus(document.getElementById('startButton')); // 统一按钮状态
-
+    stopBackgroundMusic();
     // 清空主画布和下一个方块画布
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     nextContext.clearRect(0, 0, nextContext.canvas.width, nextContext.canvas.height);
@@ -120,6 +120,7 @@ function startGame() {
     setTimeout(() => {
         update();
     }, 1200);
+    backgroundMusicSource =  playSound('background', true);
 }
 
 function resetScore() {
@@ -132,7 +133,6 @@ function resetScore() {
 
 async function toggleGame() {
     const startButton = document.getElementById('startButton');
-    await initSounds();
     // 如果游戏尚未开始，直接开始游戏
     if (!currentTetromino) {
         startGame();

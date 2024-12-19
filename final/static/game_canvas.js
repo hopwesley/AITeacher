@@ -151,12 +151,6 @@ function drawCell(context, x, y, color) {
     context.restore(); // 恢复之前的绘图状态，避免影响其他绘制操作
 }
 
-async function loadSound(name, url) {
-    const response = await fetch(url);
-    const arrayBuffer = await response.arrayBuffer();
-    audioBufferPool[name] = await audioContext.decodeAudioData(arrayBuffer);
-}
-
 function showLevelUpMessage() {
     const message = document.createElement('div');
     message.textContent = `Level Up! Now Level ${level}`;
