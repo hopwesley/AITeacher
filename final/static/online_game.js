@@ -194,7 +194,7 @@ function newMsg(chatMsg) {
     const currentPeer = document.getElementById('friendId').textContent.trim();
     if (currentPeer !== chatMsg.from) {
         const element = document.querySelector(`div[data-uuid="${chatMsg.from}"]`);
-        if (element){
+        if (element) {
             element.querySelector(".message-dot").style.display = 'block';
             const parent = element.parentNode;
             parent.insertBefore(element, parent.firstChild);
@@ -250,12 +250,19 @@ function acceptInvite() {
         return
     }
     showWaitingStatus();
-    const gameRoomID = generateUUID();
-    const msg = new ChatMsg(Date.now(), player.uuid, peerID, gameRoomID, MsgTyp.AcceptGame);
-    chatSocket.send(JSON.stringify(msg));
+    try {
+        const gameRoomID = generateUUID();
+        const msg = new ChatMsg(Date.now(), player.uuid, peerID, gameRoomID, MsgTyp.AcceptGame);
+        chatSocket.send(JSON.stringify(msg));
 
-    const gameJoin = new GameJoin(player.uuid, gameRoomID);
-    gameSocket = OpenGameConn(gameJoin, new GameCallback());
+        const gameJoin = new GameJoin(player.uuid, gameRoomID);
+        gameSocket = OpenGameConn(gameJoin, new GameCallback());
+        startBattle();
+    } catch (e) {
+        alert(e);
+    } finally {
+        hideWaitingStatus();
+    }
 }
 
 // 拒绝邀请的逻辑
@@ -284,12 +291,12 @@ function GameInviteResult(chatMsg) {
     startBattle();
 }
 
-function GameStarting(msg){
+function GameStarting(msg) {
     console.log("------>>> game starting");
 }
 
-function Gaming(data,seq){
+function Gaming(data, seq) {
 }
 
-function GameOvering(data){
+function GameOvering(data) {
 }

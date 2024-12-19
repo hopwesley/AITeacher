@@ -39,7 +39,7 @@ func checkDuplicateGameJoin(gj *GameJoin) {
 	delete(userToRoom, gj.PlayerID)
 }
 
-func enterGame(w http.ResponseWriter, r *http.Request, gj *GameJoin) *GameRoom {
+func enterGame(conn *websocket.Conn, gj *GameJoin) *GameRoom {
 	gLock.Lock()
 	defer gLock.Unlock()
 
@@ -52,14 +52,8 @@ func enterGame(w http.ResponseWriter, r *http.Request, gj *GameJoin) *GameRoom {
 		}
 		gameRoom[gj.GameID] = room
 	}
-	conn, err := upGrader.Upgrade(w, r, nil)
-	if err != nil {
-		http.Error(w, "WebSocket 升级失败", http.StatusInternalServerError)
-		return nil
-	}
-	room.players[gj.PlayerID] = conn
 
-	go readGameData(conn, room)
+	room.players[gj.PlayerID] = conn
 
 	uLock.Lock()
 	userToRoom[gj.PlayerID] = gj.GameID
@@ -88,12 +82,20 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	checkDuplicateGameJoin(gj)
 
-	room := enterGame(w, r, gj)
+	conn, err := upGrader.Upgrade(w, r, nil)
+	if err != nil {
+		http.Error(w, "WebSocket 升级失败", http.StatusInternalServerError)
+		return
+	}
+
+	room := enterGame(conn, gj)
 	if room == nil {
 		return
 	}
 
 	checkStartGame(room)
+
+	readGameData(conn, room)
 }
 
 func checkStartGame(room *GameRoom) {
@@ -115,6 +117,17 @@ func readGameData(conn *websocket.Conn, room *GameRoom) {
 	for {
 		var msg GameMsg
 		err := conn.ReadJSON(&msg)
+		//fmt.Println("----->>> game message :", msg)
+		if msg.Typ == MsgTypePing {
+			msg.Typ = MsgTypePong
+			err := conn.WriteJSON(msg)
+			if err != nil {
+				fmt.Println("------>>> game message error:", err)
+				return
+			}
+			continue
+		}
+
 		if err != nil {
 			fmt.Println("------>>>reading game error:", err)
 			return
@@ -157,7 +170,13 @@ func asyncBroadCaster(room *GameRoom) {
 
 func dismissGame(gameID string) {
 	gLock.Lock()
+	defer gLock.Unlock()
+
 	room := gameRoom[gameID]
+	if room == nil {
+		return
+	}
+
 	for pid, conn := range room.players {
 		uLock.Lock()
 		delete(userToRoom, pid)
@@ -166,5 +185,4 @@ func dismissGame(gameID string) {
 	}
 	delete(gameRoom, gameID)
 	close(room.msgChan)
-	gLock.Unlock()
 }

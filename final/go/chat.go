@@ -82,8 +82,7 @@ func reading(conn *ChatConn) {
 			fmt.Println("------>>>reading error:", err)
 			return
 		}
-		fmt.Println("------>>> read message:", msg)
-
+		//fmt.Println("------>>> read message:", msg)
 		if msg.Typ == MsgTypePing {
 			msg.Typ = MsgTypePong
 			write(conn, &msg)
@@ -115,7 +114,7 @@ func write(conn *ChatConn, msg *ChatMsg) {
 		closeChatConn(conn)
 		return
 	}
-	fmt.Println("------>>> write message:", msg)
+	//fmt.Println("------>>> write message:", msg)
 }
 
 func notifyOnOffLine(player *PlayerInfo, typ int) {

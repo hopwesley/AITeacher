@@ -40,7 +40,7 @@ function __initSocket(endPoint, player, callback) {
             if (socket.readyState === WebSocket.OPEN) {
                 const msg = new ChatMsg(Date.now(), player.uuid, '0', 'ping', MsgTyp.Ping)
                 socket.send(JSON.stringify(msg)); // 主动发送心跳
-                console.log("发送心跳: ping");
+                // console.log("发送心跳: ping");
             }
         }, keepAliveInterval);
     };
@@ -48,7 +48,7 @@ function __initSocket(endPoint, player, callback) {
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.typ === MsgTyp.Pong) {
-            console.log("------>>>收到心跳响应: pong");
+            // console.log("------>>>收到心跳响应: pong");
             return
         }
         callback.OnMessage(data);
@@ -78,7 +78,7 @@ class WebSocketCallback {
 
     OnMessage(data) {
         // 接收到消息时的逻辑
-        console.log('收到的数据:', data);
+        // console.log('收到的数据:', data);
     }
 
     OnClose() {

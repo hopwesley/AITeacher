@@ -44,8 +44,8 @@ type GameJoin struct {
 	GameID   string `json:"gameID"`
 }
 type GameMsg struct {
-	Seq  int64  `json:"seq"`
 	Typ  int    `json:"typ"`
+	Seq  int64  `json:"seq"`
 	Data string `json:"data"`
 	From string `json:"from"`
 }
