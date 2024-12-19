@@ -36,17 +36,22 @@ async function loadOnlinePlayers() {
             continue;
         }
 
-        const clone = template.cloneNode(true);
-        clone.style.display = 'block';
-        clone.removeAttribute('id');
-        clone.querySelector(".friend_name").textContent = obj.name;
-        clone.querySelector(".friend_status").textContent = obj.status === 0 ? "状态: 空闲" : "状态: 游戏中";
-        clone.addEventListener('click', () => {
-            selectFriend(clone, obj);
-        })
-        clone.dataset.uuid = obj.uuid
+        const clone = newFriendItem(template, obj);
         friendListUl.append(clone);
     }
+}
+
+function newFriendItem(template, obj) {
+    const clone = template.cloneNode(true);
+    clone.style.display = 'block';
+    clone.removeAttribute('id');
+    clone.querySelector(".friend_name").textContent = obj.name;
+    clone.querySelector(".friend_status").textContent = obj.status === 0 ? "状态: 空闲" : "状态: 游戏中";
+    clone.addEventListener('click', () => {
+        selectFriend(clone, obj);
+    })
+    clone.dataset.uuid = obj.uuid
+    return clone;
 }
 
 function selectFriend(element, obj) {
@@ -107,11 +112,22 @@ function signOut() {
 }
 
 function userOnOffLine(isOnline, player) {
-    document.querySelectorAll('.friend').forEach(friend => {
-            // friend.classList.remove('selected')
-            console.log('----->>>userOnOffLine', friend.dataset.uuid, player);
+    const friendList = document.getElementById("friend-list-ul");
+    const element = friendList.querySelector(`[data-uuid="${player.uuid}"]`);
+    if (element) {
+        if (isOnline === false) {
+            element.remove();
         }
-    );
+        return;
+    }
+
+    if (isOnline === false) {
+        return;
+    }
+
+    const template = document.getElementById("friendItemTemplate");
+    const clone = newFriendItem(template, player);
+    friendList.append(clone);
 }
 
 function newMsg(msg) {
@@ -123,6 +139,5 @@ function updateUserGameStatus(player, status) {
 }
 
 function notifyOffline() {
-    alert("网络连接失败，请重新登陆");
     window.location.href = 'index.html';
 }

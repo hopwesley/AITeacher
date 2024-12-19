@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nicknameInput.value = player.name;
         saveBtn.textContent = '登录';
     }
+    saveBtn.addEventListener('click',saveNickname);
 });
 
 async function saveNickname() {
