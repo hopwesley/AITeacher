@@ -7,17 +7,15 @@ class ChatCallback extends WebSocketCallback {
 
     OnMessage(data) {
         super.OnMessage(data);
-        console.log('------>>>聊天消息:', data);
 
         const msg = new ChatMsg(data.mid, data.from, data.to, data.msg, data.typ);
-        if (msg.typ === 1 || msg.typ === 2) {
+        if (msg.typ === MsgTyp.MsgTypUserOnline || msg.typ === MsgTyp.MsgTypUserOffline) {
             const playerInfo = JSON.parse(data.msg);
-            console.log("------>>> player on offline:", playerInfo);
-            const player = new PlayerInfo(playerInfo.name, playerInfo.uuid,playerInfo.score,playerInfo.cTime);
-            userOnOffLine(msg.typ === 1,player);
-        }else if(msg.typ === 0){
+            const player = new PlayerInfo(playerInfo.name, playerInfo.uuid, playerInfo.score, playerInfo.cTime);
+            userOnOffLine(msg.typ === 1, player);
+        } else if (msg.typ === MsgTyp.MsgTypChat) {
             newMsg(msg);
-        }else if(msg.typ === 3){
+        } else if (msg.typ === MsgTyp.MsgTypeUserGameStatus) {
             const playerInfo = JSON.parse(data.msg);
             updateUserGameStatus(playerInfo.to, playerInfo.status);
         }

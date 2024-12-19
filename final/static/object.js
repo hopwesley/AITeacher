@@ -69,3 +69,12 @@ class ChatMsg {
         this.typ = typ;
     }
 }
+
+const MsgTyp = {
+    MsgTypChat: 0,
+    MsgTypUserOnline: 1,
+    MsgTypUserOffline: 2,
+    MsgTypeUserGameStatus: 3,
+    MsgTypePing: 4,
+    MsgTypePong: 5
+};

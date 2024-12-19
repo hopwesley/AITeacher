@@ -150,3 +150,30 @@ body {
     display: flex;
     justify-content: center;
 }
+
+
+
+/* 基本聊天条目样式 */
+.chat-message {
+    padding: 8px 12px;
+    border-radius: 12px;
+    max-width: 60%;
+    word-wrap: break-word;
+    font-size: 14px;
+}
+
+/* 我发送的消息样式 */
+.my-message {
+    background-color: #d1e7dd; /* 淡绿色背景 */
+    color: #0f5132;
+    align-self: flex-end; /* 将消息靠右显示 */
+    text-align: right;
+}
+
+/* 别人发送的消息样式 */
+.other-message {
+    background-color: #f8d7da; /* 淡红色背景 */
+    color: #842029;
+    align-self: flex-start; /* 将消息靠左显示 */
+    text-align: left;
+}

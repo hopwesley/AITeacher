@@ -34,7 +34,7 @@ function __initSocket(endPoint, player, callback) {
         callback.OnOpen();
         keepAliveTimer = setInterval(() => {
             if (socket.readyState === WebSocket.OPEN) {
-                const msg = new ChatMsg(Date.now(),player.uuid,'0','ping',4)
+                const msg = new ChatMsg(Date.now(), player.uuid, '0', 'ping', MsgTyp.MsgTypePing)
                 socket.send(JSON.stringify(msg)); // 主动发送心跳
                 console.log("发送心跳: ping");
             }
@@ -43,7 +43,7 @@ function __initSocket(endPoint, player, callback) {
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (data.typ === 5) {
+        if (data.typ === MsgTyp.MsgTypePong) {
             console.log("------>>>收到心跳响应: pong");
             return
         }

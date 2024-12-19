@@ -2,6 +2,7 @@ let gameSocket;
 let chatSocket;
 let player;
 
+const chatCache = new Map();
 document.addEventListener('DOMContentLoaded', () => {
     player = loadPlayerInfo();
     if (!player) {
@@ -9,12 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
         return;
     }
-    console.log("------>>> player info:", player);
     // gameSocket = OpenGameConn(new GameCallback());
     chatSocket = OpenChatConn(player, new ChatCallback());
     loadOnlinePlayers().then(r => {
         console.log("------>>> check online player success");
-    })
+    });
+
+    document.getElementById('chatInput').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
 });
 
 async function loadOnlinePlayers() {
@@ -54,12 +60,33 @@ function newFriendItem(template, obj) {
     return clone;
 }
 
+function cacheData(uuid, msg) {
+    let cache = chatCache[uuid];
+    if (!cache) {
+        chatCache[uuid] = [];
+        cache = chatCache[uuid];
+    }
+    cache.push(msg);
+}
+
 function selectFriend(element, obj) {
     document.querySelectorAll('.friend').forEach(friend => friend.classList.remove('selected'));
     element.classList.add('selected');
     document.getElementById('friendName').textContent = obj.name;
     document.getElementById('friendId').textContent = obj.uuid;
     document.getElementById('friendHighScore').textContent = obj.score;
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML = "";
+
+    const historyChat = chatCache[obj.uuid];
+    if (!historyChat) {
+        return;
+    }
+
+    for (let i = 0; i < historyChat.length; i++) {
+        const chatMsg = historyChat[i];
+        newChatItemDiv(chatMessages, `你: ${chatMsg.msg}`, chatMsg.from === player.uuid);
+    }
 }
 
 function inviteFriend() {
@@ -74,15 +101,40 @@ function inviteFriend() {
 
 function sendMessage() {
     const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    if (message) {
-        const chatMessages = document.getElementById('chatMessages');
-        const newMessage = document.createElement('div');
-        newMessage.textContent = `你: ${message}`;
-        chatMessages.appendChild(newMessage);
-        input.value = '';
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+    const peerUUID = document.getElementById('friendId').textContent.trim();
+    if (peerUUID.length < 4) {
+        return;
     }
+
+    const message = input.value.trim();
+    if (!message) {
+        return;
+    }
+
+    const chatMsg = new ChatMsg(Date.now(), player.uuid, peerUUID, message, MsgTyp.MsgTypChat);
+    cacheData(chatMsg.to, chatMsg);
+
+    const chatMessages = document.getElementById('chatMessages');
+    newChatItemDiv(chatMessages, `你: ${message}`, true);
+    input.value = '';
+
+    const msg = new ChatMsg(Date.now(), player.uuid, peerUUID, message, MsgTyp.MsgTypChat);
+    chatSocket.send(JSON.stringify(msg));
+}
+
+function newChatItemDiv(chatMessages, msg, isMine = false) {
+    const newMessage = document.createElement('div');
+
+    newMessage.classList.add("chat-message");
+    if (isMine) {
+        newMessage.classList.add('my-message');
+    } else {
+        newMessage.classList.add('other-message');
+    }
+
+    newMessage.textContent = msg;
+    chatMessages.appendChild(newMessage);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 function startBattle() {
@@ -130,8 +182,15 @@ function userOnOffLine(isOnline, player) {
     friendList.append(clone);
 }
 
-function newMsg(msg) {
-
+function newMsg(chatMsg) {
+    cacheData(chatMsg.from, chatMsg);
+    const currentPeer = document.getElementById('friendId').textContent.trim();
+    if (currentPeer !== chatMsg.from) {
+        return;
+    }
+    const peerName = document.getElementById('friendName').textContent.trim();
+    const chatMessages = document.getElementById('chatMessages');
+    newChatItemDiv(chatMessages, `${peerName}: ${chatMsg.msg}`);
 }
 
 function updateUserGameStatus(player, status) {
