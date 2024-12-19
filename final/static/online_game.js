@@ -144,14 +144,9 @@ function newChatItemDiv(chatMessages, msg, isMine = false) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-function startBattle() {
+function showGameBoard() {
     document.querySelector('.container').style.display = 'none'; // 隐藏好友列表界面
     document.getElementById('battleContainer').style.display = 'flex'; // 显示对战界面
-    initBattleGame();
-}
-
-function initBattleGame() {
-    console.log("对战开始！");
 }
 
 function quitOnlineGame() {
@@ -257,7 +252,7 @@ function acceptInvite() {
 
         const gameJoin = new GameJoin(player.uuid, gameRoomID);
         gameSocket = OpenGameConn(gameJoin, new GameCallback());
-        startBattle();
+        showGameBoard();
     } catch (e) {
         alert(e);
     } finally {
@@ -288,6 +283,6 @@ function GameInviteResult(chatMsg) {
 
     const gameJoin = new GameJoin(player.uuid, chatMsg.msg);
     gameSocket = OpenGameConn(gameJoin, new GameCallback());
-    startBattle();
+    showGameBoard();
 }
 
