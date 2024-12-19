@@ -109,11 +109,13 @@ function sendMessage() {
     const input = document.getElementById('chatInput');
     const peerUUID = document.getElementById('friendId').textContent.trim();
     if (peerUUID.length < 4) {
+        alert("请选中一个好友")
         return;
     }
 
     const message = input.value.trim();
     if (!message) {
+        alert("没有消息可发送");
         return;
     }
 
@@ -194,6 +196,8 @@ function newMsg(chatMsg) {
         const element = document.querySelector(`div[data-uuid="${chatMsg.from}"]`);
         if (element){
             element.querySelector(".message-dot").style.display = 'block';
+            const parent = element.parentNode;
+            parent.insertBefore(element, parent.firstChild);
         }
         return;
     }
