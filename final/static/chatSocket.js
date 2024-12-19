@@ -18,7 +18,7 @@ class ChatCallback extends WebSocketCallback {
         } else if (msg.typ === MsgTyp.InviteGame) {
             gotGameInvite(msg);
         }else if (msg.typ === MsgTyp.AcceptGame ||msg.typ === MsgTyp.RejectGame){
-            GameResult(msg);
+            GameInviteResult(msg);
         }
     }
 

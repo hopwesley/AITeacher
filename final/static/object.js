@@ -84,7 +84,7 @@ const MsgTyp = {
 };
 
 class GameJoin {
-    constructor(playerID,gameID) {
+    constructor(playerID, gameID) {
         this.playerID = playerID;
         this.gameID = gameID;
     }
@@ -98,3 +98,17 @@ function generateUUID() {
         return v.toString(16);
     });
 }
+
+class GameMsg {
+    constructor(typ, data, from, seq) {
+        this.typ = typ;
+        this.data = data;
+        this.from = from;
+        this.seq = seq;
+    }
+}
+const GameTyp = {
+    StartGame: 0,
+    GameData: 1,
+    GameOver: 2,
+};

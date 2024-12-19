@@ -111,6 +111,7 @@ func reading(conn *ChatConn) {
 func write(conn *ChatConn, msg *ChatMsg) {
 	err := conn.WriteJSON(msg)
 	if err != nil {
+		fmt.Println("------>>> write chat message error:", err)
 		closeChatConn(conn)
 		return
 	}

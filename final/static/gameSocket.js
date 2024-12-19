@@ -7,7 +7,18 @@ class GameCallback extends WebSocketCallback {
 
     OnMessage(data) {
         super.OnMessage(data);
-        console.log('游戏数据:', data);
+        const msg = new GameMsg(data.typ, data.data, data.from, data.seq);
+        switch (data.typ){
+            case GameTyp.StartGame:
+                GameStarting(msg);
+                break;
+            case GameTyp.GameData:
+                Gaming(msg.data,msg.seq);
+                break;
+            case GameTyp.GameOver:
+                GameOvering(msg.data);
+                break;
+        }
     }
 
     OnClose() {

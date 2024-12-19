@@ -17,6 +17,12 @@ const (
 	MsgTypeRejectGame
 )
 
+const (
+	GameStart = iota
+	GameData
+	GameOver
+)
+
 type PlayerInfo struct {
 	PlayerName string `json:"name"`
 	UUID       string `json:"uuid"`
@@ -36,4 +42,10 @@ type ChatMsg struct {
 type GameJoin struct {
 	PlayerID string `json:"playerID"`
 	GameID   string `json:"gameID"`
+}
+type GameMsg struct {
+	Seq  int64  `json:"seq"`
+	Typ  int    `json:"typ"`
+	Data string `json:"data"`
+	From string `json:"from"`
 }

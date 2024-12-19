@@ -263,16 +263,26 @@ function declineInvite() {
     chatSocket.send(JSON.stringify(msg));
 }
 
-function GameResult(chatMsg) {
-
+function GameInviteResult(chatMsg) {
     hideWaitingStatus();
     if (chatMsg.typ === MsgTyp.RejectGame) {
         alert("对方拒绝邀请");
         return
     }
-    
+
     const gameJoin = new GameJoin(player.uuid, chatMsg.msg);
     gameSocket = OpenGameConn(gameJoin, new GameCallback());
-
     startBattle();
+}
+
+function GameStarting(msg){
+    console.log("------>>> game starting");
+}
+
+function Gaming(data,seq){
+
+}
+
+function GameOvering(data){
+
 }
