@@ -7,6 +7,7 @@ let score = 0;
 let _gameRenderer;
 let level = 1;            // 初始难度级别
 const LEVEL_THRESHOLD = 500;  // 每500分提升一个难度级别
+let animationId;
 
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('tetrisCanvas');
@@ -29,15 +30,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function update(time = 0) {
-    if (gamePaused) return; // 如果游戏暂停，停止更新
+    if (gamePaused) {
+        console.log("Game is paused, stopping animation.");
+        stopAnimation();
+        return;
+    }
+
     const deltaTime = time - lastTime;
     lastTime = time;
 
-    const cleanedLines = _gameRenderer.update(deltaTime)
+    const cleanedLines = _gameRenderer.update(deltaTime);
     updateScore(cleanedLines);
-
-    requestAnimationFrame(update);
+    animationId = requestAnimationFrame(update);
 }
+
 
 function changeGameStatus(button, reset = false) {
     if (reset || gamePaused) {
@@ -51,24 +57,21 @@ function changeGameStatus(button, reset = false) {
     }
 }
 
-function resetGame() {
-    console.log("------------------>>>>>>")
-    // 显示自定义对话框
+async function resetGame() {
+    gamePaused = true;
+    _gameRenderer.endRendering();
+
+    stopAnimation()
+
     const gameOverDialog = document.getElementById('gameOverDialog');
     gameOverDialog.style.display = 'flex';
-    _gameRenderer.endRendering();
 
     playSound('gameOver');
     endGame();
-    // 暂停游戏
-    gamePaused = true;
+
     changeGameStatus(document.getElementById('startButton')); // 统一按钮状态
-    stopBackgroundMusic().then(r => {
-    });
+    stopBackgroundMusic().then();
 
-    // 清空主画布和下一个方块画布
-
-    // 添加重新开始和取消按钮的事件监听
     const restartButton = document.getElementById('restartButton');
     const cancelButton = document.getElementById('cancelButton');
 
@@ -79,7 +82,6 @@ function resetGame() {
 
     cancelButton.onclick = () => {
         gameOverDialog.style.display = 'none'; // 隐藏对话框
-        currentTetromino = null;               // 清除当前方块
         resetScore();
         const mainElement = document.querySelector('.tetrisCanvas');
         mainElement.classList.remove('fade-in');
@@ -88,8 +90,10 @@ function resetGame() {
 
 
 function startGame() {
+    console.log("Starting game...");
+    stopAnimation(); // 确保没有残留的动画帧
+
     const mainElement = document.querySelector('.tetrisCanvas');
-    // 如果没有添加淡入效果，先添加
     if (!mainElement.classList.contains('fade-in')) {
         mainElement.classList.add('fade-in');
     }
@@ -99,11 +103,12 @@ function startGame() {
     resetScore();
     gamePaused = false;
     changeGameStatus(document.getElementById('startButton'));
-    setTimeout(() => {
-        update();
-    }, 1200);
+
+    animationId = requestAnimationFrame(update); // 直接启动动画帧
     backgroundMusicSource = playSound('background', true);
 }
+
+
 
 function resetScore() {
     score = 0;
@@ -115,20 +120,22 @@ function resetScore() {
 
 async function toggleGame() {
     const startButton = document.getElementById('startButton');
-    // 如果游戏尚未开始，直接开始游戏
-    if (!currentTetromino) {
-        startGame();
+    if (_gameRenderer.gameStop()) {
+        startGame(); // 如果游戏未启动，直接开始游戏
         return;
     }
 
-    // 切换游戏暂停/继续状态
     gamePaused = !gamePaused;
     changeGameStatus(startButton);
 
-    if (!gamePaused) {
-        update(); // 继续游戏循环
+    if (gamePaused) {
+        stopAnimation(); // 暂停时停止动画帧
+    } else {
+        animationId = requestAnimationFrame(update); // 恢复时启动动画帧
     }
 }
+
+
 
 window.addEventListener('beforeunload', (event) => {
     if (!gamePaused) {
@@ -237,4 +244,24 @@ function showLevelUpMessage() {
     setTimeout(() => {
         document.body.removeChild(message);
     }, 2000);
+}
+
+function stopAnimation() {
+    if (animationId) {
+        console.log(`Stopping animation frame: ${animationId}`);
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    } else {
+        console.log("No valid animation frame to stop.");
+    }
+}
+
+
+function startAnimation() {
+    if (animationId) {
+        console.log(`Animation frame already running: ${animationId}`);
+        return; // 防止重复调用
+    }
+    animationId = requestAnimationFrame(update);
+    console.log(`Starting animation frame: ${animationId}`);
 }

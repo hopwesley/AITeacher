@@ -2,7 +2,6 @@ const ROWS = 20;
 const COLS = 10;
 const BLOCK_SIZE = 32;
 
-let currentTetromino;
 const TransAct = {
     Left: 0,
     Wright: 1,
@@ -87,15 +86,15 @@ class GameRenderer {
         this.subContext = nextCanvas.getContext('2d');
         this.subContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
 
-        this.board = createBoard(ROWS, COLS);
-
         this.dropCounter = 0;
+        this.currentTetromino = null;
+        this.nextTetromino = null;
     }
 
     startRendering(defaultDropInterval = 1000) {
         this.dropInterval = defaultDropInterval;
         this.board = createBoard(ROWS, COLS);
-        currentTetromino = randomTetromino(this.board);
+        this.currentTetromino = randomTetromino(this.board);
         this.nextTetromino = randomTetromino(this.board);
         drawNextTetromino(this.subContext, this.nextTetromino);
     }
@@ -103,19 +102,19 @@ class GameRenderer {
     keyAction(typ) {
         switch (typ) {
             case TransAct.Left:
-                currentTetromino.moveLeft();
+                this.currentTetromino.moveLeft();
                 return 0;
             case TransAct.Wright:
-                currentTetromino.moveRight();
+                this.currentTetromino.moveRight();
                 return 0;
             case TransAct.Rotate:
-                currentTetromino.rotate();
+                this.currentTetromino.rotate();
                 return 0;
             case TransAct.Down:
                 let cleanLines = 0;
 
                 playSound('drop');
-                const endDrop = currentTetromino.moveDown();
+                const endDrop = this.currentTetromino.moveDown();
                 if (endDrop) {
                     cleanLines = _gameRenderer.endDrop();
                 }
@@ -131,17 +130,17 @@ class GameRenderer {
             triggerBorderFlash(this.mainContext).then();
         }
 
-        currentTetromino = this.nextTetromino;
-        currentTetromino.position = {
+        this.currentTetromino = this.nextTetromino;
+        this.currentTetromino.position = {
             row: 0,
-            col: Math.floor(COLS / 2) - Math.floor(currentTetromino.shape[0].length / 2)
+            col: Math.floor(COLS / 2) - Math.floor(this.currentTetromino.shape[0].length / 2)
         };
 
         this.nextTetromino = randomTetromino(this.board);
         drawNextTetromino(this.subContext, this.nextTetromino);
 
-        if (!isValidMove(this.board, currentTetromino.shape, currentTetromino.position)) {
-            resetGame(); // 调用游戏结束逻辑
+        if (!isValidMove(this.board, this.currentTetromino.shape, this.currentTetromino.position)) {
+            resetGame().then(); // 调用游戏结束逻辑
         }
 
         return linesCleared;
@@ -153,15 +152,15 @@ class GameRenderer {
 
         if (this.dropCounter > this.dropInterval) {
             this.dropCounter = 0;
-            const endDrop = currentTetromino.moveDown();
+            const endDrop = this.currentTetromino.moveDown();
             if (endDrop) {
                 lineCleaned = this.endDrop();
             }
         }
 
         drawMainBoard(this.board, this.mainContext);
-        if (currentTetromino) {
-            currentTetromino.draw(this.mainContext);
+        if (this.currentTetromino) {
+            this.currentTetromino.draw(this.mainContext);
         }
 
         updateParticles(this.mainContext);
@@ -174,8 +173,14 @@ class GameRenderer {
 
     endRendering() {
         this.nextTetromino = null;
+        this.currentTetromino = null;
         this.mainContext.clearRect(0, 0, this.mainContext.canvas.width, this.mainContext.canvas.height);
         this.subContext.clearRect(0, 0, this.subContext.canvas.width, this.subContext.canvas.height);
+        this.board = createBoard(ROWS, COLS);
+    }
+
+    gameStop(){
+        return  !this.currentTetromino;
     }
 }
 
