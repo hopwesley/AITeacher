@@ -56,6 +56,8 @@ function resetGame() {
     // 显示自定义对话框
     const gameOverDialog = document.getElementById('gameOverDialog');
     gameOverDialog.style.display = 'flex';
+    _gameRenderer.endRendering();
+
     playSound('gameOver');
     endGame();
     // 暂停游戏
@@ -65,7 +67,6 @@ function resetGame() {
     });
 
     // 清空主画布和下一个方块画布
-    _gameRenderer.endRendering();
 
     // 添加重新开始和取消按钮的事件监听
     const restartButton = document.getElementById('restartButton');
@@ -79,9 +80,7 @@ function resetGame() {
     cancelButton.onclick = () => {
         gameOverDialog.style.display = 'none'; // 隐藏对话框
         currentTetromino = null;               // 清除当前方块
-        nextTetromino = null;                  // 清除下一个方块
         resetScore();
-        _gameRenderer.endRendering();
         const mainElement = document.querySelector('.tetrisCanvas');
         mainElement.classList.remove('fade-in');
     };

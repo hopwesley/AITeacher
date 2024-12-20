@@ -3,8 +3,6 @@ const COLS = 10;
 const BLOCK_SIZE = 32;
 
 let currentTetromino;
-let nextTetromino;
-
 const TransAct = {
     Left: 0,
     Wright: 1,
@@ -98,8 +96,8 @@ class GameRenderer {
         this.dropInterval = defaultDropInterval;
         this.board = createBoard(ROWS, COLS);
         currentTetromino = randomTetromino(this.board);
-        nextTetromino = randomTetromino(this.board);
-        drawNextTetromino(this.subContext);
+        this.nextTetromino = randomTetromino(this.board);
+        drawNextTetromino(this.subContext, this.nextTetromino);
     }
 
     keyAction(typ) {
@@ -133,14 +131,14 @@ class GameRenderer {
             triggerBorderFlash(this.mainContext).then();
         }
 
-        currentTetromino = nextTetromino;
+        currentTetromino = this.nextTetromino;
         currentTetromino.position = {
             row: 0,
             col: Math.floor(COLS / 2) - Math.floor(currentTetromino.shape[0].length / 2)
         };
 
-        nextTetromino = randomTetromino(this.board);
-        drawNextTetromino(this.subContext);
+        this.nextTetromino = randomTetromino(this.board);
+        drawNextTetromino(this.subContext, this.nextTetromino);
 
         if (!isValidMove(this.board, currentTetromino.shape, currentTetromino.position)) {
             resetGame(); // 调用游戏结束逻辑
@@ -175,6 +173,7 @@ class GameRenderer {
     }
 
     endRendering() {
+        this.nextTetromino = null;
         this.mainContext.clearRect(0, 0, this.mainContext.canvas.width, this.mainContext.canvas.height);
         this.subContext.clearRect(0, 0, this.subContext.canvas.width, this.subContext.canvas.height);
     }
@@ -276,12 +275,12 @@ function isValidMove(board, shape, position) {
     return true;
 }
 
-function drawNextTetromino(context) {
+function drawNextTetromino(context, tetromino) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-    if (!nextTetromino) return; // 如果 nextTetromino 为 null，直接返回
+    if (!tetromino) return;
 
-    context.fillStyle = nextTetromino.color;
-    const shape = nextTetromino.shape;
+    context.fillStyle = tetromino.color;
+    const shape = tetromino.shape;
     const rows = shape.length;
     const cols = shape[0].length;
 
@@ -292,7 +291,7 @@ function drawNextTetromino(context) {
     shape.forEach((row, rowIndex) => {
         row.forEach((cell, colIndex) => {
             if (cell) {
-                drawCell(context, offsetX + colIndex, offsetY + rowIndex, nextTetromino.color);
+                drawCell(context, offsetX + colIndex, offsetY + rowIndex, tetromino.color);
             }
         });
     });
