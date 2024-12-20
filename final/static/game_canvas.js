@@ -1,13 +1,16 @@
 const ROWS = 20;
 const COLS = 10;
 const BLOCK_SIZE = 32;
-const LEVEL_THRESHOLD = 500;  // 每500分提升一个难度级别
 
-let nextContext;
-let board;
 let currentTetromino;
 let nextTetromino;
-let level = 1;            // 初始难度级别
+
+const TransAct = {
+    Left: 0,
+    Wright: 1,
+    Rotate: 2,
+    Down: 3
+}
 
 // 定义 Tetromino 类
 class Tetromino {
@@ -83,26 +86,47 @@ class GameRenderer {
         this.mainContext = canvas.getContext('2d');
         this.mainContext.scale(BLOCK_SIZE, BLOCK_SIZE);
 
-        nextContext = nextCanvas.getContext('2d');
-        nextContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+        this.subContext = nextCanvas.getContext('2d');
+        this.subContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
 
-        this.subContext = nextContext;
         this.board = createBoard(ROWS, COLS);
-        board = this.board;
 
         this.dropCounter = 0;
     }
 
     startRendering(defaultDropInterval = 1000) {
         this.dropInterval = defaultDropInterval;
-        board = createBoard(ROWS, COLS);
-        currentTetromino = randomTetromino(board);
-        nextTetromino = randomTetromino(board);
-        drawNextTetromino();
+        this.board = createBoard(ROWS, COLS);
+        currentTetromino = randomTetromino(this.board);
+        nextTetromino = randomTetromino(this.board);
+        drawNextTetromino(this.subContext);
+    }
+
+    keyAction(typ) {
+        switch (typ) {
+            case TransAct.Left:
+                currentTetromino.moveLeft();
+                return 0;
+            case TransAct.Wright:
+                currentTetromino.moveRight();
+                return 0;
+            case TransAct.Rotate:
+                currentTetromino.rotate();
+                return 0;
+            case TransAct.Down:
+                let cleanLines = 0;
+
+                playSound('drop');
+                const endDrop = currentTetromino.moveDown();
+                if (endDrop) {
+                    cleanLines = _gameRenderer.endDrop();
+                }
+                return cleanLines;
+        }
     }
 
     endDrop() {
-        const linesCleared = clearLines(board);
+        const linesCleared = clearLines(this.board);
 
         if (linesCleared > 0) {
             playSound('clear');
@@ -115,10 +139,10 @@ class GameRenderer {
             col: Math.floor(COLS / 2) - Math.floor(currentTetromino.shape[0].length / 2)
         };
 
-        nextTetromino = randomTetromino(board);
-        drawNextTetromino();
+        nextTetromino = randomTetromino(this.board);
+        drawNextTetromino(this.subContext);
 
-        if (!isValidMove(board, currentTetromino.shape, currentTetromino.position)) {
+        if (!isValidMove(this.board, currentTetromino.shape, currentTetromino.position)) {
             resetGame(); // 调用游戏结束逻辑
         }
 
@@ -137,13 +161,12 @@ class GameRenderer {
             }
         }
 
-        drawBoard(board, this.mainContext);
+        drawMainBoard(this.board, this.mainContext);
         if (currentTetromino) {
             currentTetromino.draw(this.mainContext);
         }
 
-        updateParticles(this.mainContext); // 更新粒子效果
-
+        updateParticles(this.mainContext);
         return lineCleaned;
     }
 
@@ -153,7 +176,7 @@ class GameRenderer {
 
     endRendering() {
         this.mainContext.clearRect(0, 0, this.mainContext.canvas.width, this.mainContext.canvas.height);
-        nextContext.clearRect(0, 0, nextContext.canvas.width, nextContext.canvas.height);
+        this.subContext.clearRect(0, 0, this.subContext.canvas.width, this.subContext.canvas.height);
     }
 }
 
@@ -167,7 +190,7 @@ function createBoard(rows, cols) {
 }
 
 
-function drawBoard(board, context) {
+function drawMainBoard(board, context) {
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, COLS, ROWS);
 
@@ -253,23 +276,23 @@ function isValidMove(board, shape, position) {
     return true;
 }
 
-function drawNextTetromino() {
-    nextContext.clearRect(0, 0, nextContext.canvas.width, nextContext.canvas.height);
+function drawNextTetromino(context) {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     if (!nextTetromino) return; // 如果 nextTetromino 为 null，直接返回
 
-    nextContext.fillStyle = nextTetromino.color;
+    context.fillStyle = nextTetromino.color;
     const shape = nextTetromino.shape;
     const rows = shape.length;
     const cols = shape[0].length;
 
     // 计算居中位置
-    const offsetX = Math.floor((nextContext.canvas.width / (BLOCK_SIZE / 2) - cols) / 2);
-    const offsetY = Math.floor((nextContext.canvas.height / (BLOCK_SIZE / 2) - rows) / 2);
+    const offsetX = Math.floor((context.canvas.width / (BLOCK_SIZE / 2) - cols) / 2);
+    const offsetY = Math.floor((context.canvas.height / (BLOCK_SIZE / 2) - rows) / 2);
 
     shape.forEach((row, rowIndex) => {
         row.forEach((cell, colIndex) => {
             if (cell) {
-                drawCell(nextContext, offsetX + colIndex, offsetY + rowIndex, nextTetromino.color);
+                drawCell(context, offsetX + colIndex, offsetY + rowIndex, nextTetromino.color);
             }
         });
     });

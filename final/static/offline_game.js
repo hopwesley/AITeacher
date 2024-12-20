@@ -5,6 +5,9 @@ let totalScore = parseInt(localStorage.getItem('totalScore3')) || 0;
 let lastTime = 0;
 let score = 0;
 let _gameRenderer;
+let level = 1;            // 初始难度级别
+const LEVEL_THRESHOLD = 500;  // 每500分提升一个难度级别
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('tetrisCanvas');
     const nextCanvas = document.getElementById('nextTetromino');
@@ -58,7 +61,8 @@ function resetGame() {
     // 暂停游戏
     gamePaused = true;
     changeGameStatus(document.getElementById('startButton')); // 统一按钮状态
-    stopBackgroundMusic().then(r => {});
+    stopBackgroundMusic().then(r => {
+    });
 
     // 清空主画布和下一个方块画布
     _gameRenderer.endRendering();
@@ -77,7 +81,7 @@ function resetGame() {
         currentTetromino = null;               // 清除当前方块
         nextTetromino = null;                  // 清除下一个方块
         resetScore();
-        // 移除淡入效果
+        _gameRenderer.endRendering();
         const mainElement = document.querySelector('.tetrisCanvas');
         mainElement.classList.remove('fade-in');
     };
@@ -187,7 +191,8 @@ function saveCustomization() {
 
 function handleKeyPress(event) {
     if (event.key === 'p') {
-        toggleGame().then(r => {});
+        toggleGame().then(r => {
+        });
     }
 
     if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'].includes(event.key)) {
@@ -196,19 +201,22 @@ function handleKeyPress(event) {
 
     if (gamePaused) return;
 
-    if (event.key === 'ArrowLeft') {
-        currentTetromino.moveLeft();
-    } else if (event.key === 'ArrowRight') {
-        currentTetromino.moveRight();
-    } else if (event.key === 'ArrowDown') {
-        playSound('drop');
-        const endDrop = currentTetromino.moveDown();
-        if (endDrop) {
-            const linesCleared = _gameRenderer.endDrop();
-            updateScore(linesCleared)
-        }
-    } else if (event.key === 'ArrowUp') {
-        currentTetromino.rotate();
+    const action = keyToAction(event.key)
+    const linesCleared = _gameRenderer.keyAction(action);
+    updateScore(linesCleared);
+
+}
+
+function keyToAction(key) {
+    switch (key) {
+        case 'ArrowLeft':
+            return TransAct.Left;
+        case 'ArrowRight':
+            return TransAct.Wright;
+        case 'ArrowDown':
+            return TransAct.Down;
+        case 'ArrowUp':
+            return TransAct.Rotate;
     }
 }
 
