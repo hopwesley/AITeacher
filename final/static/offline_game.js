@@ -5,15 +5,11 @@ let totalScore = parseInt(localStorage.getItem('totalScore3')) || 0;
 let lastTime = 0;
 let score = 0;
 let dropCounter = 0;
-
+let _gameRenderer;
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('tetrisCanvas');
-    context = canvas.getContext('2d');
-    context.scale(BLOCK_SIZE, BLOCK_SIZE);
-
     const nextCanvas = document.getElementById('nextTetromino');
-    nextContext = nextCanvas.getContext('2d');
-    nextContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+    _gameRenderer = new GameRenderer(canvas, nextCanvas);
 
     const startButton = document.getElementById('startButton');
     startButton.addEventListener('click', toggleGame);
@@ -39,8 +35,11 @@ function update(time = 0) {
 
     dropCounter += deltaTime;
     if (dropCounter > dropInterval) {
-        currentTetromino.moveDown();
         dropCounter = 0;
+        const endDrop = currentTetromino.moveDown();
+        if (endDrop){
+            _gameRenderer.endDrop();
+        }
     }
 
     drawBoard(board);
@@ -111,8 +110,8 @@ function startGame() {
     }
 
     board = createBoard(ROWS, COLS);
-    currentTetromino = randomTetromino();
-    nextTetromino = randomTetromino();
+    currentTetromino = randomTetromino(board);
+    nextTetromino = randomTetromino(board);
     drawNextTetromino();
     resetScore();
     gamePaused = false;
@@ -201,4 +200,45 @@ function saveCustomization() {
     particleColor = document.getElementById('blockColorPicker').value;
     localStorage.setItem('particleColor', particleColor);
     alert('个性化设置已保存！');
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'p') {
+        toggleGame();
+    }
+    if (gamePaused) return;
+
+    if (event.key === 'ArrowLeft') {
+        currentTetromino.moveLeft();
+    } else if (event.key === 'ArrowRight') {
+        currentTetromino.moveRight();
+    } else if (event.key === 'ArrowDown') {
+        playSound('drop');
+        const endDrop =  currentTetromino.moveDown();
+        if (endDrop){
+            _gameRenderer.endDrop();
+        }
+    } else if (event.key === 'ArrowUp') {
+        currentTetromino.rotate();
+    }
+}
+
+function showLevelUpMessage() {
+    const message = document.createElement('div');
+    message.textContent = `Level Up! Now Level ${level}`;
+    message.style.position = 'absolute';
+    message.style.top = '20px';
+    message.style.left = '50%';
+    message.style.transform = 'translateX(-50%)';
+    message.style.padding = '10px 20px';
+    message.style.backgroundColor = '#ffcc00';
+    message.style.color = '#000';
+    message.style.fontSize = '20px';
+    message.style.borderRadius = '5px';
+    message.style.zIndex = '1000';
+    document.body.appendChild(message);
+
+    setTimeout(() => {
+        document.body.removeChild(message);
+    }, 2000);
 }

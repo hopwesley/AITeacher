@@ -13,9 +13,10 @@ let dropInterval = 1000;  // 初始下落间隔（以毫秒为单位）
 
 // 定义 Tetromino 类
 class Tetromino {
-    constructor(shape, color) {
+    constructor(shape, color, board) {
         this.shape = shape;
         this.color = color;
+        this.board = board;
         this.position = {row: 0, col: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2)};
     }
 
@@ -32,22 +33,10 @@ class Tetromino {
 
     moveDown() {
         this.position.row++;
-        if (!isValidMove(board, this.shape, this.position)) {
+        if (!isValidMove(this.board, this.shape, this.position)) {
             this.position.row--;
-            mergeBoard(board, this.shape, this.position);
-            clearLines();
-
-            currentTetromino = nextTetromino;
-            currentTetromino.position = {
-                row: 0,
-                col: Math.floor(COLS / 2) - Math.floor(currentTetromino.shape[0].length / 2)
-            };
-            nextTetromino = randomTetromino();
-            drawNextTetromino();
-
-            if (!isValidMove(board, currentTetromino.shape, currentTetromino.position)) {
-                resetGame(); // 调用游戏结束逻辑
-            }
+            mergeBoard(this.board, this.shape, this.position);
+            clearLines(this.board);
             return true; // 表示不能再下落
         }
         return false;
@@ -55,7 +44,7 @@ class Tetromino {
 
     moveLeft() {
         this.position.col--;
-        if (!isValidMove(board, this.shape, this.position)) {
+        if (!isValidMove(this.board, this.shape, this.position)) {
             this.position.col++;
         } else {
             playSound('move');
@@ -64,7 +53,7 @@ class Tetromino {
 
     moveRight() {
         this.position.col++;
-        if (!isValidMove(board, this.shape, this.position)) {
+        if (!isValidMove(this.board, this.shape, this.position)) {
             this.position.col--;
         } else {
             playSound('move');
@@ -73,7 +62,7 @@ class Tetromino {
 
     rotate() {
         const rotated = rotateMatrix(this.shape);
-        if (isValidMove(board, rotated, this.position)) {
+        if (isValidMove(this.board, rotated, this.position)) {
             this.shape = rotated;
             playSound('rotate');
         }
@@ -91,28 +80,37 @@ const TETROMINOS = [
     {shape: [[1, 1, 0], [0, 1, 1], [0, 0, 0]], color: '#FF5733'}                          // Z 形 - 鲜亮的红色
 ];
 
-function handleKeyPress(event) {
-    if (event.key === 'p') {
-        toggleGame();
-    }
-    if (gamePaused) return;
+class GameRenderer{
 
-    if (event.key === 'ArrowLeft') {
-        currentTetromino.moveLeft();
-    } else if (event.key === 'ArrowRight') {
-        currentTetromino.moveRight();
-    } else if (event.key === 'ArrowDown') {
-        currentTetromino.moveDown();
-        playSound('drop');
-    } else if (event.key === 'ArrowUp') {
-        currentTetromino.rotate();
+    constructor(canvas, nextCanvas) {
+        context = canvas.getContext('2d');
+        context.scale(BLOCK_SIZE, BLOCK_SIZE);
+
+        nextContext = nextCanvas.getContext('2d');
+        nextContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+
+        this.mainContext = context;
+        this.subContext = nextContext;
+    }
+
+    endDrop(){
+        currentTetromino = nextTetromino;
+        currentTetromino.position = {
+            row: 0,
+            col: Math.floor(COLS / 2) - Math.floor(currentTetromino.shape[0].length / 2)
+        };
+        nextTetromino = randomTetromino(board);
+        drawNextTetromino();
+
+        if (!isValidMove(board, currentTetromino.shape, currentTetromino.position)) {
+            resetGame(); // 调用游戏结束逻辑
+        }
     }
 }
 
-
-function randomTetromino() {
+function randomTetromino(board) {
     const randomIndex = Math.floor(Math.random() * TETROMINOS.length);
-    return new Tetromino(TETROMINOS[randomIndex].shape, TETROMINOS[randomIndex].color);
+    return new Tetromino(TETROMINOS[randomIndex].shape, TETROMINOS[randomIndex].color, board);
 }
 
 function createBoard(rows, cols) {
@@ -151,27 +149,7 @@ function drawCell(context, x, y, color) {
     context.restore(); // 恢复之前的绘图状态，避免影响其他绘制操作
 }
 
-function showLevelUpMessage() {
-    const message = document.createElement('div');
-    message.textContent = `Level Up! Now Level ${level}`;
-    message.style.position = 'absolute';
-    message.style.top = '20px';
-    message.style.left = '50%';
-    message.style.transform = 'translateX(-50%)';
-    message.style.padding = '10px 20px';
-    message.style.backgroundColor = '#ffcc00';
-    message.style.color = '#000';
-    message.style.fontSize = '20px';
-    message.style.borderRadius = '5px';
-    message.style.zIndex = '1000';
-    document.body.appendChild(message);
-
-    setTimeout(() => {
-        document.body.removeChild(message);
-    }, 2000);
-}
-
-function clearLines() {
+function clearLines(board) {
     let linesCleared = 0;
 
     for (let row = board.length - 1; row >= 0;) {
