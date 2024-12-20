@@ -3,13 +3,11 @@ const COLS = 10;
 const BLOCK_SIZE = 32;
 const LEVEL_THRESHOLD = 500;  // 每500分提升一个难度级别
 
-let context;
 let nextContext;
 let board;
 let currentTetromino;
 let nextTetromino;
 let level = 1;            // 初始难度级别
-let dropInterval = 1000;  // 初始下落间隔（以毫秒为单位）
 
 // 定义 Tetromino 类
 class Tetromino {
@@ -36,7 +34,6 @@ class Tetromino {
         if (!isValidMove(this.board, this.shape, this.position)) {
             this.position.row--;
             mergeBoard(this.board, this.shape, this.position);
-            clearLines(this.board);
             return true; // 表示不能再下落
         }
         return false;
@@ -80,31 +77,83 @@ const TETROMINOS = [
     {shape: [[1, 1, 0], [0, 1, 1], [0, 0, 0]], color: '#FF5733'}                          // Z 形 - 鲜亮的红色
 ];
 
-class GameRenderer{
+class GameRenderer {
 
     constructor(canvas, nextCanvas) {
-        context = canvas.getContext('2d');
-        context.scale(BLOCK_SIZE, BLOCK_SIZE);
+        this.mainContext = canvas.getContext('2d');
+        this.mainContext.scale(BLOCK_SIZE, BLOCK_SIZE);
 
         nextContext = nextCanvas.getContext('2d');
         nextContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
 
-        this.mainContext = context;
         this.subContext = nextContext;
+        this.board = createBoard(ROWS, COLS);
+        board = this.board;
+
+        this.dropCounter = 0;
     }
 
-    endDrop(){
+    startRendering(defaultDropInterval = 1000) {
+        this.dropInterval = defaultDropInterval;
+        board = createBoard(ROWS, COLS);
+        currentTetromino = randomTetromino(board);
+        nextTetromino = randomTetromino(board);
+        drawNextTetromino();
+    }
+
+    endDrop() {
+        const linesCleared = clearLines(board);
+
+        if (linesCleared > 0) {
+            playSound('clear');
+            triggerBorderFlash(this.mainContext).then();
+        }
+
         currentTetromino = nextTetromino;
         currentTetromino.position = {
             row: 0,
             col: Math.floor(COLS / 2) - Math.floor(currentTetromino.shape[0].length / 2)
         };
+
         nextTetromino = randomTetromino(board);
         drawNextTetromino();
 
         if (!isValidMove(board, currentTetromino.shape, currentTetromino.position)) {
             resetGame(); // 调用游戏结束逻辑
         }
+
+        return linesCleared;
+    }
+
+    update(deltaTime) {
+        let lineCleaned = 0;
+        this.dropCounter += deltaTime;
+
+        if (this.dropCounter > this.dropInterval) {
+            this.dropCounter = 0;
+            const endDrop = currentTetromino.moveDown();
+            if (endDrop) {
+                lineCleaned = this.endDrop();
+            }
+        }
+
+        drawBoard(board, this.mainContext);
+        if (currentTetromino) {
+            currentTetromino.draw(this.mainContext);
+        }
+
+        updateParticles(this.mainContext); // 更新粒子效果
+
+        return lineCleaned;
+    }
+
+    speedUp(acceleration) {
+        this.dropInterval *= acceleration;
+    }
+
+    endRendering() {
+        this.mainContext.clearRect(0, 0, this.mainContext.canvas.width, this.mainContext.canvas.height);
+        nextContext.clearRect(0, 0, nextContext.canvas.width, nextContext.canvas.height);
     }
 }
 
@@ -118,7 +167,7 @@ function createBoard(rows, cols) {
 }
 
 
-function drawBoard(board) {
+function drawBoard(board, context) {
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, COLS, ROWS);
 
@@ -163,11 +212,7 @@ function clearLines(board) {
         }
     }
 
-    if (linesCleared > 0) {
-        playSound('clear');
-        triggerBorderFlash().then();
-        updateScore(linesCleared)
-    }
+    return linesCleared;
 }
 
 function rotateMatrix(matrix) {

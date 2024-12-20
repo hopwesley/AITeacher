@@ -4,7 +4,6 @@ let totalGames = localStorage.getItem('totalGames') || 0;
 let totalScore = parseInt(localStorage.getItem('totalScore3')) || 0;
 let lastTime = 0;
 let score = 0;
-let dropCounter = 0;
 let _gameRenderer;
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('tetrisCanvas');
@@ -14,14 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('startButton');
     startButton.addEventListener('click', toggleGame);
 
-    board = createBoard(ROWS, COLS);
     document.addEventListener('keydown', handleKeyPress); // 添加键盘事件
-    drawBoard(board); // 初始时绘制空的棋盘
 
     const savedBgColor = localStorage.getItem('bgColor');
     if (savedBgColor) {
         document.body.style.backgroundColor = savedBgColor;
     }
+
     particleColor = localStorage.getItem('blockColor') || '#ff0000';
     document.getElementById('blockColorPicker').value = particleColor;
 });
@@ -29,25 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function update(time = 0) {
     if (gamePaused) return; // 如果游戏暂停，停止更新
-
     const deltaTime = time - lastTime;
     lastTime = time;
 
-    dropCounter += deltaTime;
-    if (dropCounter > dropInterval) {
-        dropCounter = 0;
-        const endDrop = currentTetromino.moveDown();
-        if (endDrop){
-            _gameRenderer.endDrop();
-        }
-    }
+    const cleanedLines = _gameRenderer.update(deltaTime)
+    updateScore(cleanedLines);
 
-    drawBoard(board);
-    if (currentTetromino) {
-        currentTetromino.draw(context);
-    }
-
-    updateParticles(); // 更新粒子效果
     requestAnimationFrame(update);
 }
 
@@ -73,10 +58,10 @@ function resetGame() {
     // 暂停游戏
     gamePaused = true;
     changeGameStatus(document.getElementById('startButton')); // 统一按钮状态
-    stopBackgroundMusic();
+    stopBackgroundMusic().then(r => {});
+
     // 清空主画布和下一个方块画布
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-    nextContext.clearRect(0, 0, nextContext.canvas.width, nextContext.canvas.height);
+    _gameRenderer.endRendering();
 
     // 添加重新开始和取消按钮的事件监听
     const restartButton = document.getElementById('restartButton');
@@ -91,10 +76,7 @@ function resetGame() {
         gameOverDialog.style.display = 'none'; // 隐藏对话框
         currentTetromino = null;               // 清除当前方块
         nextTetromino = null;                  // 清除下一个方块
-        board = createBoard(ROWS, COLS);       // 重置棋盘
-        drawBoard(board);                      // 绘制空的棋盘
         resetScore();
-
         // 移除淡入效果
         const mainElement = document.querySelector('.tetrisCanvas');
         mainElement.classList.remove('fade-in');
@@ -109,17 +91,15 @@ function startGame() {
         mainElement.classList.add('fade-in');
     }
 
-    board = createBoard(ROWS, COLS);
-    currentTetromino = randomTetromino(board);
-    nextTetromino = randomTetromino(board);
-    drawNextTetromino();
+    _gameRenderer.startRendering();
+
     resetScore();
     gamePaused = false;
     changeGameStatus(document.getElementById('startButton'));
     setTimeout(() => {
         update();
     }, 1200);
-    backgroundMusicSource =  playSound('background', true);
+    backgroundMusicSource = playSound('background', true);
 }
 
 function resetScore() {
@@ -154,7 +134,9 @@ window.addEventListener('beforeunload', (event) => {
 });
 
 function updateScore(linesCleared) {
-
+    if (!linesCleared) {
+        return;
+    }
     score += linesCleared * 100;
 
     totalLineCleared += linesCleared;
@@ -164,11 +146,12 @@ function updateScore(linesCleared) {
     if (level >= 20) {
         return;
     }
+
     // 每当分数达到LEVEL_THRESHOLD的倍数时，提升难度
     if (score >= level * LEVEL_THRESHOLD) {
         level++;
         document.getElementById('currentLevel').textContent = level;
-        dropInterval *= 0.9; // 提高难度，减少下落间隔，速度加快
+        _gameRenderer.speedUp(0.9);
         showLevelUpMessage();
     }
 }
@@ -204,8 +187,13 @@ function saveCustomization() {
 
 function handleKeyPress(event) {
     if (event.key === 'p') {
-        toggleGame();
+        toggleGame().then(r => {});
     }
+
+    if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'].includes(event.key)) {
+        event.preventDefault();
+    }
+
     if (gamePaused) return;
 
     if (event.key === 'ArrowLeft') {
@@ -214,9 +202,10 @@ function handleKeyPress(event) {
         currentTetromino.moveRight();
     } else if (event.key === 'ArrowDown') {
         playSound('drop');
-        const endDrop =  currentTetromino.moveDown();
-        if (endDrop){
-            _gameRenderer.endDrop();
+        const endDrop = currentTetromino.moveDown();
+        if (endDrop) {
+            const linesCleared = _gameRenderer.endDrop();
+            updateScore(linesCleared)
         }
     } else if (event.key === 'ArrowUp') {
         currentTetromino.rotate();

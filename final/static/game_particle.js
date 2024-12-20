@@ -41,9 +41,7 @@ function generateParticlesAsync(row) {
     generateNextColumn(); // 开始生成
 }
 
-
-
-function updateParticles() {
+function updateParticles(context) {
     particles = particles.filter(particle => particle.life > 0); // 移除生命周期结束的粒子
     particles.forEach(particle => {
         particle.update();
@@ -51,7 +49,7 @@ function updateParticles() {
     });
 }
 
-function triggerBorderFlash() {
+function triggerBorderFlash(context) {
     const canvas = context.canvas; // 获取主画布元素
     return new Promise((resolve) => {
         canvas.classList.add('canvas-flash');
