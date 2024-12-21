@@ -140,7 +140,7 @@ class GameRenderer {
         drawNextTetromino(this.subContext, this.nextTetromino);
 
         if (!isValidMove(this.board, this.currentTetromino.shape, this.currentTetromino.position)) {
-            resetGame().then(); // 调用游戏结束逻辑
+            return -1;
         }
 
         return linesCleared;
@@ -192,7 +192,6 @@ function randomTetromino(board) {
 function createBoard(rows, cols) {
     return Array.from({length: rows}, () => Array(cols).fill(0));
 }
-
 
 function drawMainBoard(board, context) {
     context.fillStyle = '#ffffff';

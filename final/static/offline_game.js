@@ -40,6 +40,10 @@ function update(time = 0) {
     lastTime = time;
 
     const cleanedLines = _gameRenderer.update(deltaTime);
+    if (cleanedLines < 0) {
+        gameEnding().then();
+        return;
+    }
     updateScore(cleanedLines);
     animationId = requestAnimationFrame(update);
 }
@@ -57,7 +61,7 @@ function changeGameStatus(button, reset = false) {
     }
 }
 
-async function resetGame() {
+async function gameEnding() {
     gamePaused = true;
     _gameRenderer.endRendering();
 
@@ -67,7 +71,7 @@ async function resetGame() {
     gameOverDialog.style.display = 'flex';
 
     playSound('gameOver');
-    endGame();
+    displayGameEnding();
 
     changeGameStatus(document.getElementById('startButton')); // 统一按钮状态
     stopBackgroundMusic().then();
@@ -108,8 +112,6 @@ function startGame() {
     backgroundMusicSource = playSound('background', true);
 }
 
-
-
 function resetScore() {
     score = 0;
     level = 1;
@@ -135,8 +137,6 @@ async function toggleGame() {
     }
 }
 
-
-
 window.addEventListener('beforeunload', (event) => {
     if (!gamePaused) {
         event.preventDefault();
@@ -144,7 +144,7 @@ window.addEventListener('beforeunload', (event) => {
 });
 
 function updateScore(linesCleared) {
-    if (!linesCleared) {
+    if (linesCleared <= 0) {
         return;
     }
     score += linesCleared * 100;
@@ -166,7 +166,7 @@ function updateScore(linesCleared) {
     }
 }
 
-function endGame() {
+function displayGameEnding() {
     totalGames++;
     totalScore += parseInt(score);
 
@@ -178,13 +178,8 @@ function endGame() {
     localStorage.setItem('totalGames', totalGames);
     localStorage.setItem('totalScore3', totalScore.toString());
 
-    displayAdvancedStats();
-}
-
-function displayAdvancedStats() {
     document.getElementById('currentScore').textContent = score;
     document.getElementById('highScore').textContent = highScore;
-    console.log("------>>>", totalScore, "games:", totalGames);
     document.getElementById('averageScore').textContent = (totalScore / totalGames).toFixed(2);
     document.getElementById('totalGames').textContent = totalGames;
 }
@@ -209,8 +204,11 @@ function handleKeyPress(event) {
 
     const action = keyToAction(event.key)
     const linesCleared = _gameRenderer.keyAction(action);
+    if (linesCleared < 0) {
+        gameEnding().then();
+        return;
+    }
     updateScore(linesCleared);
-
 }
 
 function keyToAction(key) {
