@@ -109,6 +109,11 @@ class GameMsg {
 }
 const GameTyp = {
     StartGame: 0,
-    GameData: 1,
-    GameOver: 2,
+
+    MainTetromino:1,
+    SubTetromino:2,
+    NewScore:3,
+    NewLevel:4,
+
+    GameOver: 10,
 };

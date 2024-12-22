@@ -7,10 +7,14 @@ let playerScore = 0;
 let peerScore = 0;
 let animationId;
 let lastTime = 0;
+let Sequence = 0;
 
 class SelfGameCallback extends GameActionListener {
-    action() {
-        super.action();
+    action(typ, data) {
+        super.action(typ, data);
+        Sequence++;
+        const msg = new GameMsg(typ, data, player.uuid, Sequence);
+        gameSocket.send(JSON.stringify(msg));
     }
 }
 
@@ -32,11 +36,17 @@ function GameStarting(msg) {
 
     backgroundMusicSource = playSound('background', true);
     stopAnimation();
-    animationId = requestAnimationFrame(frameUpdate); // 直接启动动画帧
+    animationId = requestAnimationFrame(frameUpdate);
 }
 
-function Gaming(data, seq) {
-
+function Gaming(message) {
+    console.log("------>>> message body:", message);
+    switch (message.typ) {
+        case GameTyp.SubTetromino:
+            const subObj = JSON.parse(message.data);
+            console.log("------>>> next tetromino:", subObj);
+            peerGameRender.setNextTetromino(subObj);
+    }
 }
 
 function GameOvering(data) {

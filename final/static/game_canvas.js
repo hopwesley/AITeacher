@@ -9,6 +9,8 @@ const TransAct = {
     Down: 3
 }
 
+
+
 // 定义 Tetromino 类
 class Tetromino {
     constructor(shape, color, board) {
@@ -99,6 +101,10 @@ class GameRenderer {
         this.currentTetromino = randomTetromino(this.board);
         this.nextTetromino = randomTetromino(this.board);
         drawNextTetromino(this.subContext, this.nextTetromino);
+        if(this.actCallback){
+            this.actCallback.action(GameTyp.MainTetromino, JSON.stringify(this.currentTetromino));
+            this.actCallback.action(GameTyp.SubTetromino, JSON.stringify(this.nextTetromino));
+        }
     }
 
     keyAction(typ) {
@@ -141,6 +147,12 @@ class GameRenderer {
         };
 
         this.nextTetromino = randomTetromino(this.board);
+
+        if(this.actCallback){
+            this.actCallback.action(GameTyp.MainTetromino, JSON.stringify(this.currentTetromino));
+            this.actCallback.action(GameTyp.SubTetromino, JSON.stringify(this.nextTetromino));
+        }
+
         drawNextTetromino(this.subContext, this.nextTetromino);
 
         if (!isValidMove(this.board, this.currentTetromino.shape, this.currentTetromino.position)) {
@@ -307,11 +319,9 @@ function drawNextTetromino(context, tetromino) {
 
 class GameActionListener {
     constructor() {
-
     }
 
-    action() {
-
+    action(typ, data) {
     }
 }
 
@@ -331,9 +341,13 @@ class GameShowRenderer {
         this.board = createBoard(ROWS, COLS);
     }
 
-    setNewTetromino(newTetromino, newNextTetromino) {
-        this.currentTetromino = newTetromino;
+    setNextTetromino(newNextTetromino) {
         this.nextTetromino = newNextTetromino;
+        drawNextTetromino(this.subContext, this.nextTetromino);
+    }
+
+    updateCurrentTetromino(newTetromino){
+        this.currentTetromino = newTetromino;
     }
 }
 

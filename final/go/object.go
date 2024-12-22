@@ -19,8 +19,11 @@ const (
 
 const (
 	GameStart = iota
-	GameData
-	GameOver
+	MainTetromino
+	SubTetromino
+	NewScore
+	NewLevel
+	GameOver = 10
 )
 
 type PlayerInfo struct {
