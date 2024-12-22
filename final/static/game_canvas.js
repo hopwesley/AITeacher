@@ -10,14 +10,18 @@ const TransAct = {
 }
 
 
-
 // 定义 Tetromino 类
 class Tetromino {
-    constructor(shape, color, board) {
+
+    constructor(shape, color, board, position = null) {
         this.shape = shape;
         this.color = color;
         this.board = board;
-        this.position = {row: 0, col: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2)};
+        if (!position) {
+            this.position = {row: 0, col: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2)};
+        } else {
+            this.position = position;
+        }
     }
 
     draw(context) {
@@ -101,7 +105,7 @@ class GameRenderer {
         this.currentTetromino = randomTetromino(this.board);
         this.nextTetromino = randomTetromino(this.board);
         drawNextTetromino(this.subContext, this.nextTetromino);
-        if(this.actCallback){
+        if (this.actCallback) {
             this.actCallback.action(GameTyp.MainTetromino, JSON.stringify(this.currentTetromino));
             this.actCallback.action(GameTyp.SubTetromino, JSON.stringify(this.nextTetromino));
         }
@@ -120,12 +124,19 @@ class GameRenderer {
                 return 0;
             case TransAct.Down:
                 let cleanLines = 0;
-
                 playSound('drop');
                 const endDrop = this.currentTetromino.moveDown();
                 if (endDrop) {
+                    if (this.actCallback) {
+                        this.actCallback.action(GameTyp.MergeBoard, JSON.stringify(this.currentTetromino));
+                    }
                     cleanLines = this.endDrop();
+                }else{
+                    if (this.actCallback) {
+                        this.actCallback.action(GameTyp.MainTetromino, JSON.stringify(this.currentTetromino));
+                    }
                 }
+
                 return cleanLines;
             default :
                 return 0;
@@ -148,7 +159,7 @@ class GameRenderer {
 
         this.nextTetromino = randomTetromino(this.board);
 
-        if(this.actCallback){
+        if (this.actCallback) {
             this.actCallback.action(GameTyp.MainTetromino, JSON.stringify(this.currentTetromino));
             this.actCallback.action(GameTyp.SubTetromino, JSON.stringify(this.nextTetromino));
         }
@@ -171,6 +182,13 @@ class GameRenderer {
             const endDrop = this.currentTetromino.moveDown();
             if (endDrop) {
                 lineCleaned = this.endDrop();
+                if (this.actCallback) {
+                    this.actCallback.action(GameTyp.MergeBoard, JSON.stringify(this.currentTetromino));
+                }
+            }else{
+                if (this.actCallback) {
+                    this.actCallback.action(GameTyp.MainTetromino, JSON.stringify(this.currentTetromino));
+                }
             }
         }
 
@@ -269,7 +287,6 @@ function rotateMatrix(matrix) {
     return result;
 }
 
-
 function mergeBoard(board, shape, position) {
     shape.forEach((row, rowIndex) => {
         row.forEach((cell, cellIndex) => {
@@ -346,8 +363,18 @@ class GameShowRenderer {
         drawNextTetromino(this.subContext, this.nextTetromino);
     }
 
-    updateCurrentTetromino(newTetromino){
-        this.currentTetromino = newTetromino;
+    updateCurrentTetromino(newTetromino) {
+        this.currentTetromino = new Tetromino(newTetromino.shape, newTetromino.color, this.board, newTetromino.position);
+        drawMainBoard(this.board, this.mainContext);
+        this.currentTetromino.draw(this.mainContext);
+    }
+
+    mergeBoard(tetromino) {
+        this.board = tetromino.board
+        drawMainBoard(this.board, this.mainContext);
+    }
+
+    endRendering(){
     }
 }
 

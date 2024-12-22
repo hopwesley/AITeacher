@@ -10,11 +10,11 @@ const (
 	MsgTypUserOffline
 	MsgTypeUserInGame
 	MsgTypeUserIdle
-	MsgTypePing
-	MsgTypePong
 	MsgTypeInviteGame
 	MsgTypeAcceptGame
 	MsgTypeRejectGame
+	MsgTypePing = 100
+	MsgTypePong = 101
 )
 
 const (
@@ -23,6 +23,7 @@ const (
 	SubTetromino
 	NewScore
 	NewLevel
+	MergeBoard
 	GameOver = 10
 )
 

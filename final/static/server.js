@@ -57,6 +57,7 @@ function __initSocket(endPoint, player, callback) {
     socket.onclose = () => {
         clearInterval(keepAliveTimer); // 停止心跳
         callback.OnClose();
+        console.log("------>>> socket closed")
     };
 
     return socket;

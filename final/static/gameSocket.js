@@ -8,6 +8,7 @@ class GameCallback extends WebSocketCallback {
     OnMessage(data) {
         super.OnMessage(data);
         const msg = new GameMsg(data.typ, data.data, data.from, data.seq);
+
         switch (data.typ) {
             case GameTyp.StartGame:
                 GameStarting(msg);

@@ -117,21 +117,19 @@ func readGameData(conn *websocket.Conn, room *GameRoom) {
 	for {
 		var msg GameMsg
 		err := conn.ReadJSON(&msg)
-		//fmt.Println("----->>> game message :", msg)
-		if msg.Typ == MsgTypePing {
-			msg.Typ = MsgTypePong
-			err := conn.WriteJSON(msg)
-			if err != nil {
-				fmt.Println("------>>> game message error:", err)
-				return
-			}
-			continue
-		}
-
 		if err != nil {
 			fmt.Println("------>>>reading game error:", err)
 			return
 		}
+		//fmt.Println("----->>> game message :", msg)
+		if msg.Typ == MsgTypePing {
+			msg.Typ = MsgTypePong
+			room.msgChan <- &msg
+			continue
+		}
+
+		//fmt.Println("------>>> read game message:", msg)
+
 		room.msgChan <- &msg
 	}
 }
@@ -152,6 +150,7 @@ func sendMsg(room *GameRoom, msg *GameMsg) {
 			go dismissGame(room.roomID)
 			return
 		}
+
 	}
 }
 

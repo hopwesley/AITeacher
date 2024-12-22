@@ -11,10 +11,14 @@ let Sequence = 0;
 
 class SelfGameCallback extends GameActionListener {
     action(typ, data) {
-        super.action(typ, data);
-        Sequence++;
-        const msg = new GameMsg(typ, data, player.uuid, Sequence);
-        gameSocket.send(JSON.stringify(msg));
+        try {
+            super.action(typ, data);
+            Sequence++;
+            const msg = new GameMsg(typ, data, player.uuid, Sequence);
+            gameSocket.send(JSON.stringify(msg));
+        } catch (e) {
+            console.error("Failed to send message:", e)
+        }
     }
 }
 
@@ -40,17 +44,26 @@ function GameStarting(msg) {
 }
 
 function Gaming(message) {
-    console.log("------>>> message body:", message);
+
     switch (message.typ) {
         case GameTyp.SubTetromino:
             const subObj = JSON.parse(message.data);
-            console.log("------>>> next tetromino:", subObj);
             peerGameRender.setNextTetromino(subObj);
+            break;
+
+        case GameTyp.MainTetromino:
+            peerGameRender.updateCurrentTetromino(JSON.parse(message.data));
+            break;
+
+        case GameTyp.MergeBoard:
+            peerGameRender.mergeBoard(JSON.parse(message.data));
+            break;
     }
 }
 
 function GameOvering(data) {
     playerGameRender.endRendering();
+    peerGameRender.endRendering();
 }
 
 function frameUpdate(time = 0) {

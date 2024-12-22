@@ -8,39 +8,6 @@ class PlayerInfo {
         this.cTime = cTime;        // 创建时间或加入时间
         this.status = status;
     }
-
-    // 更新玩家的分数
-    updateScore(newScore) {
-        if (newScore > this.score) {
-            this.score = newScore;
-        }
-    }
-
-    // 格式化玩家信息为字符串
-    getInfo() {
-        return `玩家名称: ${this.name}\nUUID: ${this.uuid}\n当前分数: ${this.score}\n加入时间: ${this.formatTime(this.cTime)}`;
-    }
-
-    formatTime(unixTime) {
-        const date = new Date(unixTime * 1000); // 转换为毫秒时间戳
-        return date.toLocaleString(); // 返回本地时间字符串
-    }
-
-    // 重置分数
-    resetScore() {
-        this.score = 0;
-    }
-
-    // 比较分数，用于对战结果判断
-    compareScore(otherPlayer) {
-        if (this.score > otherPlayer.score) {
-            return `${this.name} 胜出！`;
-        } else if (this.score < otherPlayer.score) {
-            return `${otherPlayer.name} 胜出！`;
-        } else {
-            return "平局！";
-        }
-    }
 }
 
 function loadPlayerInfo() {
@@ -76,11 +43,11 @@ const MsgTyp = {
     UserOffline: 2,
     UserInGame: 3,
     UserIdle: 4,
-    Ping: 5,
-    Pong: 6,
     InviteGame: 7,
     AcceptGame: 8,
-    RejectGame: 9
+    RejectGame: 9,
+    Ping: 100,
+    Pong: 101,
 };
 
 class GameJoin {
@@ -114,6 +81,7 @@ const GameTyp = {
     SubTetromino:2,
     NewScore:3,
     NewLevel:4,
+    MergeBoard:5,
 
     GameOver: 10,
 };
