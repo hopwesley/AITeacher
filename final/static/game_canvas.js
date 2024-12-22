@@ -112,6 +112,10 @@ class GameRenderer {
     }
 
     keyAction(typ) {
+        if (!this.currentTetromino) {
+            return;
+        }
+
         switch (typ) {
             case TransAct.Left:
                 this.currentTetromino.moveLeft();
@@ -131,7 +135,7 @@ class GameRenderer {
                     if (this.actCallback) {
                         this.actCallback.action(GameTyp.MergeBoard, JSON.stringify(this.currentTetromino));
                     }
-                }else{
+                } else {
                     if (this.actCallback) {
                         this.actCallback.action(GameTyp.MainTetromino, JSON.stringify(this.currentTetromino));
                     }
@@ -185,7 +189,7 @@ class GameRenderer {
                 if (this.actCallback) {
                     this.actCallback.action(GameTyp.MergeBoard, JSON.stringify(this.currentTetromino));
                 }
-            }else{
+            } else {
                 if (this.actCallback) {
                     this.actCallback.action(GameTyp.MainTetromino, JSON.stringify(this.currentTetromino));
                 }
@@ -374,7 +378,7 @@ class GameShowRenderer {
         drawMainBoard(this.board, this.mainContext);
     }
 
-    endRendering(){
+    endRendering() {
     }
 }
 

@@ -2,9 +2,7 @@ let playerGameRender;
 let peerGameRender;
 const LEVEL_THRESHOLD = 1000;
 let playerLevel = 1;
-let peerLevel = 1;
 let playerScore = 0;
-let peerScore = 0;
 let animationId;
 let lastTime = 0;
 let Sequence = 0;
@@ -13,13 +11,17 @@ class SelfGameCallback extends GameActionListener {
     action(typ, data) {
         try {
             super.action(typ, data);
-            Sequence++;
-            const msg = new GameMsg(typ, data, player.uuid, Sequence);
-            gameSocket.send(JSON.stringify(msg));
+            sendGameMsg(typ, data);
         } catch (e) {
             console.error("Failed to send message:", e)
         }
     }
+}
+
+function sendGameMsg(typ, data) {
+    Sequence++;
+    const msg = new GameMsg(typ, data, player.uuid, Sequence);
+    gameSocket.send(JSON.stringify(msg));
 }
 
 function GameStarting(msg) {
@@ -58,6 +60,13 @@ function Gaming(message) {
         case GameTyp.MergeBoard:
             peerGameRender.mergeBoard(JSON.parse(message.data));
             break;
+
+        case GameTyp.NewScore:
+            document.getElementById("opponentScore").textContent = message.data;
+            break;
+        case GameTyp.NewLevel:
+            document.getElementById("opponentLevel").textContent = message.data;
+            break;
     }
 }
 
@@ -79,14 +88,12 @@ function frameUpdate(time = 0) {
 
 function initLevelAndScore() {
     playerLevel = 1;
-    peerLevel = 1;
     playerScore = 0;
-    peerScore = 0;
 
     document.getElementById("playerLevel").textContent = playerLevel;
-    document.getElementById("opponentLevel").textContent = peerLevel;
     document.getElementById("playerScore").textContent = playerScore;
-    document.getElementById("opponentScore").textContent = peerScore;
+    document.getElementById("opponentLevel").textContent = '1';
+    document.getElementById("opponentScore").textContent = '0';
 }
 
 function stopAnimation() {
@@ -111,14 +118,17 @@ function processScore(lines) {
             playerScore += lines * 100;
             console.log("------>>>>>>player score:", playerScore, lines);
             document.getElementById("playerScore").textContent = playerScore;
+            sendGameMsg(GameTyp.NewScore, '' + playerScore);
             if (playerLevel >= 20) {
                 return;
             }
 
-            if (playerScore >= peerLevel * LEVEL_THRESHOLD) {
-                peerLevel++;
-                document.getElementById('playerLevel').textContent = peerLevel;
+            if (playerScore >= playerLevel * LEVEL_THRESHOLD) {
+                playerLevel++;
+                document.getElementById('playerLevel').textContent = playerLevel;
                 playerGameRender.speedUp(0.9);
+
+                sendGameMsg(GameTyp.NewLevel, '' + playerLevel);
             }
 
             return true;
