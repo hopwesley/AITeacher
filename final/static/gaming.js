@@ -1,6 +1,6 @@
 let playerGameRender;
 let peerGameRender;
-const LEVEL_THRESHOLD = 1000;
+const LEVEL_THRESHOLD = 500;
 let playerLevel = 1;
 let playerScore = 0;
 let animationId;
