@@ -59,7 +59,13 @@
         <div>
             <h3>你的游戏</h3>
             <div class="player-area">
-                <canvas id="playerCanvas" width="320" height="640"></canvas>
+                <div class="canvas-container">
+                    <canvas id="playerCanvas" width="320" height="640"></canvas>
+                    <div class="game-over-overlay" id="gameOverOverlay">
+                        <h1>Game Over</h1>
+                    </div>
+                </div>
+
                 <div id="player-info-panel" class="info-panel">
                     <h3>分数</h3>
                     <p id="playerScore" class="score">0</p>

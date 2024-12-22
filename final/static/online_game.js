@@ -290,4 +290,3 @@ function GameInviteResult(chatMsg) {
     gameSocket = OpenGameConn(gameJoin, new GameCallback());
     showGameBoard();
 }
-

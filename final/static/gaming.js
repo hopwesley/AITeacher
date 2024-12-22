@@ -139,6 +139,7 @@ function gameOver() {
     stopAnimation();
     sendPlayerGameScore();
     stopBackgroundMusic().then();
+    showGameOver();
 }
 
 function displayGameResult(data) {
@@ -180,4 +181,15 @@ function handleKeyPress(event) {
 function closeResult(){
     const overlay = document.getElementById('resultOverlay');
     overlay.style.display = 'none';
+}
+
+
+function showGameOver() {
+    const gameOverOverlay = document.getElementById('gameOverOverlay');
+    gameOverOverlay.style.display = 'flex';
+}
+
+function hideGameOver() {
+    const gameOverOverlay = document.getElementById('gameOverOverlay');
+    gameOverOverlay.style.display = 'none';
 }
