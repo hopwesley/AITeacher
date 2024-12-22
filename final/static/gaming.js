@@ -1,6 +1,6 @@
 let playerGameRender;
 let peerGameRender;
-
+const LEVEL_THRESHOLD = 1000;
 let playerLevel = 1;
 let peerLevel = 1;
 let playerScore = 0;
@@ -48,7 +48,7 @@ function frameUpdate(time = 0) {
     lastTime = time;
 
     const cleanedLines = playerGameRender.update(deltaTime);
-    if(!processScore(cleanedLines)){
+    if (!processScore(cleanedLines)) {
         return;
     }
     animationId = requestAnimationFrame(frameUpdate);
@@ -75,14 +75,18 @@ function stopAnimation() {
 }
 
 function processScore(lines) {
+    if (!lines) {
+        return true
+    }
     switch (lines) {
         case 0:
             return true;
         case -1:
             gameOver();
-            return  false;
+            return false;
         default:
             playerScore += lines * 100;
+            console.log("------>>>>>>player score:", playerScore, lines);
             document.getElementById("playerScore").textContent = playerScore;
             if (playerLevel >= 20) {
                 return;
@@ -103,6 +107,7 @@ function gameOver() {
     stopAnimation();
     displayGameResult();
     sendGameResult();
+    stopBackgroundMusic().then();
 }
 
 function displayGameResult() {
@@ -110,6 +115,19 @@ function displayGameResult() {
 
 function sendGameResult() {
 
+}
+
+function keyToAction(key) {
+    switch (key) {
+        case 'ArrowLeft':
+            return TransAct.Left;
+        case 'ArrowRight':
+            return TransAct.Wright;
+        case 'ArrowDown':
+            return TransAct.Down;
+        case 'ArrowUp':
+            return TransAct.Rotate;
+    }
 }
 
 function handleKeyPress(event) {

@@ -118,9 +118,11 @@ class GameRenderer {
                 playSound('drop');
                 const endDrop = this.currentTetromino.moveDown();
                 if (endDrop) {
-                    cleanLines = _gameRenderer.endDrop();
+                    cleanLines = this.endDrop();
                 }
                 return cleanLines;
+            default :
+                return 0;
         }
     }
 
