@@ -79,7 +79,7 @@ const TETROMINOS = [
 
 class GameRenderer {
 
-    constructor(canvas, nextCanvas) {
+    constructor(canvas, nextCanvas, actionListener = null) {
         this.mainContext = canvas.getContext('2d');
         this.mainContext.scale(BLOCK_SIZE, BLOCK_SIZE);
 
@@ -89,6 +89,8 @@ class GameRenderer {
         this.dropCounter = 0;
         this.currentTetromino = null;
         this.nextTetromino = null;
+
+        this.actCallback = actionListener;
     }
 
     startRendering(defaultDropInterval = 1000) {
@@ -179,8 +181,8 @@ class GameRenderer {
         this.board = createBoard(ROWS, COLS);
     }
 
-    gameStop(){
-        return  !this.currentTetromino;
+    gameStop() {
+        return !this.currentTetromino;
     }
 }
 
@@ -300,3 +302,36 @@ function drawNextTetromino(context, tetromino) {
         });
     });
 }
+
+class GameActionListener {
+    constructor() {
+
+    }
+
+    action() {
+
+    }
+}
+
+class GameShowRenderer {
+    constructor(canvas, nextCanvas) {
+        this.mainContext = canvas.getContext('2d');
+        this.mainContext.scale(BLOCK_SIZE, BLOCK_SIZE);
+
+        this.subContext = nextCanvas.getContext('2d');
+        this.subContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+
+        this.currentTetromino = null;
+        this.nextTetromino = null;
+    }
+
+    startRendering() {
+        this.board = createBoard(ROWS, COLS);
+    }
+
+    setNewTetromino(newTetromino, newNextTetromino) {
+        this.currentTetromino = newTetromino;
+        this.nextTetromino = newNextTetromino;
+    }
+}
+

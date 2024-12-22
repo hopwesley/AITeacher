@@ -254,12 +254,3 @@ function stopAnimation() {
     }
 }
 
-
-function startAnimation() {
-    if (animationId) {
-        console.log(`Animation frame already running: ${animationId}`);
-        return; // 防止重复调用
-    }
-    animationId = requestAnimationFrame(update);
-    console.log(`Starting animation frame: ${animationId}`);
-}
