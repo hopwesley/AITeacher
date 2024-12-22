@@ -136,9 +136,8 @@ function processScore(lines) {
 
 function gameOver() {
     playerGameRender.endRendering();
-    peerGameRender.endRendering();
     stopAnimation();
-    sendGameResult();
+    sendPlayerGameScore();
     stopBackgroundMusic().then();
 }
 
@@ -147,12 +146,12 @@ function displayGameResult(data) {
     document.getElementById('yourNickname').textContent = player.name;
     document.getElementById('opponentNickname').textContent = data.peerName;
     document.getElementById('yourScore').textContent = playerScore;
-    document.getElementById('opponentScore').textContent = data.peerScore;
+    document.getElementById('resultOpponentScore').textContent = data.peerScore;
     document.getElementById('matchResult').textContent = data.Result;
     overlay.style.display = 'flex';
 }
 
-function sendGameResult() {
+function sendPlayerGameScore() {
 }
 
 function keyToAction(key) {

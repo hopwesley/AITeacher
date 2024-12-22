@@ -9,7 +9,6 @@ const TransAct = {
     Down: 3
 }
 
-
 // 定义 Tetromino 类
 class Tetromino {
 
@@ -212,9 +211,7 @@ class GameRenderer {
     endRendering() {
         this.nextTetromino = null;
         this.currentTetromino = null;
-        this.mainContext.clearRect(0, 0, this.mainContext.canvas.width, this.mainContext.canvas.height);
         this.subContext.clearRect(0, 0, this.subContext.canvas.width, this.subContext.canvas.height);
-        this.board = createBoard(ROWS, COLS);
     }
 
     gameStop() {
@@ -379,6 +376,9 @@ class GameShowRenderer {
     }
 
     endRendering() {
+        this.nextTetromino = null;
+        this.currentTetromino = null;
+        this.subContext.clearRect(0, 0, this.subContext.canvas.width, this.subContext.canvas.height);
     }
 }
 
