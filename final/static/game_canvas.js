@@ -86,10 +86,18 @@ class GameRenderer {
 
     constructor(canvas, nextCanvas, actionListener = null) {
         this.mainContext = canvas.getContext('2d');
-        this.mainContext.scale(BLOCK_SIZE, BLOCK_SIZE);
+
+        if (!this.mainContext.__scaled) {
+            this.mainContext.scale(BLOCK_SIZE, BLOCK_SIZE);
+            this.mainContext.__scaled = true; // 标记已缩放
+        }
 
         this.subContext = nextCanvas.getContext('2d');
-        this.subContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+        this.subContext = nextCanvas.getContext('2d');
+        if (!this.subContext.__scaled) {
+            this.subContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+            this.subContext.__scaled = true; // 标记已缩放
+        }
 
         this.dropCounter = 0;
         this.currentTetromino = null;
@@ -103,6 +111,8 @@ class GameRenderer {
         this.board = createBoard(ROWS, COLS);
         this.currentTetromino = randomTetromino(this.board);
         this.nextTetromino = randomTetromino(this.board);
+        this.mainContext.clearRect(0, 0, this.mainContext.canvas.width, this.mainContext.canvas.height); // 清理主画布
+        drawMainBoard(this.board, this.mainContext);
         drawNextTetromino(this.subContext, this.nextTetromino);
         if (this.actCallback) {
             this.actCallback.action(GameTyp.MainTetromino, JSON.stringify(this.currentTetromino));
@@ -346,10 +356,16 @@ class GameActionListener {
 class GameShowRenderer {
     constructor(canvas, nextCanvas) {
         this.mainContext = canvas.getContext('2d');
-        this.mainContext.scale(BLOCK_SIZE, BLOCK_SIZE);
+        if (!this.mainContext.__scaled) {
+            this.mainContext.scale(BLOCK_SIZE, BLOCK_SIZE);
+            this.mainContext.__scaled = true; // 标记已缩放
+        }
 
         this.subContext = nextCanvas.getContext('2d');
-        this.subContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+        if (!this.subContext.__scaled) {
+            this.subContext.scale(BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+            this.subContext.__scaled = true; // 标记已缩放
+        }
 
         this.currentTetromino = null;
         this.nextTetromino = null;

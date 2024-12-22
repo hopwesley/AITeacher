@@ -26,10 +26,10 @@ function sendGameMsg(typ, data) {
 }
 
 function GameStarting(msg) {
-    peerGameResult = {};
-    console.log("------>>> game starting", peerGameResult);
-    document.getElementById('peerGameOverOverlay').style.display='none';
-    document.getElementById('gameOverOverlay').style.display='none';
+    initLevelAndScore();
+
+    document.getElementById('peerGameOverOverlay').style.display = 'none';
+    document.getElementById('gameOverOverlay').style.display = 'none';
     const canvas = document.getElementById('playerCanvas');
     const nextCanvas = document.getElementById('player-nextTetromino');
     playerGameRender = new GameRenderer(canvas, nextCanvas, new SelfGameCallback());
@@ -41,8 +41,6 @@ function GameStarting(msg) {
     const peerNextCanvas = document.getElementById('opponent-nextTetromino');
     peerGameRender = new GameShowRenderer(peerCanvas, peerNextCanvas);
     peerGameRender.startRendering();
-
-    initLevelAndScore();
 
     backgroundMusicSource = playSound('background', true);
     stopAnimation();
@@ -96,6 +94,9 @@ function frameUpdate(time = 0) {
 function initLevelAndScore() {
     playerLevel = 1;
     playerScore = 0;
+    peerGameResult = {};
+    lastTime = 0;
+    Sequence = 0;
 
     document.getElementById("playerLevel").textContent = playerLevel;
     document.getElementById("playerScore").textContent = playerScore;
@@ -213,7 +214,7 @@ function showFinalGameResult() {
     console.log("-------->>>player score:", selfScore, "peer score:", peerScore, peerGameResult.score, "result:", selfScore > peerScore);
     if (selfScore > peerScore) {
         document.getElementById('matchResult').textContent = "你赢了！";
-    } else if (peerScore === peerScore) {
+    } else if (selfScore === peerScore) {
         document.getElementById('matchResult').textContent = "打平了！";
     } else {
         document.getElementById('matchResult').textContent = "你输了！";
