@@ -6,6 +6,7 @@ let playerScore = 0;
 let animationId;
 let lastTime = 0;
 let Sequence = 0;
+let peerGameResult = {};
 
 class SelfGameCallback extends GameActionListener {
     action(typ, data) {
@@ -25,7 +26,10 @@ function sendGameMsg(typ, data) {
 }
 
 function GameStarting(msg) {
-    console.log("------>>> game starting");
+    peerGameResult = {};
+    console.log("------>>> game starting", peerGameResult);
+    document.getElementById('peerGameOverOverlay').style.display='none';
+    document.getElementById('gameOverOverlay').style.display='none';
     const canvas = document.getElementById('playerCanvas');
     const nextCanvas = document.getElementById('player-nextTetromino');
     playerGameRender = new GameRenderer(canvas, nextCanvas, new SelfGameCallback());
@@ -67,11 +71,15 @@ function Gaming(message) {
         case GameTyp.NewLevel:
             document.getElementById("opponentLevel").textContent = message.data;
             break;
+
+        case GameTyp.ResultScore:
+            console.log("------>>> found peer finished:", message.data);
+            peerGameResult = JSON.parse(message.data);
+            showPeerGameOver();
     }
 }
 
 function GameOvering(data) {
-    displayGameResult(data);
 }
 
 function frameUpdate(time = 0) {
@@ -111,7 +119,7 @@ function processScore(lines) {
         case 0:
             return true;
         case -1:
-            gameOver();
+            gameOver().then();
             return false;
         default:
             playerScore += lines * 100;
@@ -134,25 +142,12 @@ function processScore(lines) {
     }
 }
 
-function gameOver() {
+async function gameOver() {
     playerGameRender.endRendering();
     stopAnimation();
-    sendPlayerGameScore();
     stopBackgroundMusic().then();
+    sendGameMsg(GameTyp.ResultScore, JSON.stringify({nickname: player.name, score: playerScore}));
     showGameOver();
-}
-
-function displayGameResult(data) {
-    const overlay = document.getElementById('resultOverlay');
-    document.getElementById('yourNickname').textContent = player.name;
-    document.getElementById('opponentNickname').textContent = data.peerName;
-    document.getElementById('yourScore').textContent = playerScore;
-    document.getElementById('resultOpponentScore').textContent = data.peerScore;
-    document.getElementById('matchResult').textContent = data.Result;
-    overlay.style.display = 'flex';
-}
-
-function sendPlayerGameScore() {
 }
 
 function keyToAction(key) {
@@ -178,18 +173,51 @@ function handleKeyPress(event) {
     processScore(linesCleared);
 }
 
-function closeResult(){
+function closeResult() {
     const overlay = document.getElementById('resultOverlay');
     overlay.style.display = 'none';
+    hideGameBoard();
+    gameSocket.close(3002, "game over");
+    gameSocket = null;
 }
-
 
 function showGameOver() {
-    const gameOverOverlay = document.getElementById('gameOverOverlay');
-    gameOverOverlay.style.display = 'flex';
+    console.log('Game Over------>>>', peerGameResult);
+    if (!peerGameResult.nickname) {
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        gameOverOverlay.style.display = 'flex';
+        return;
+    }
+    showFinalGameResult();
 }
 
-function hideGameOver() {
-    const gameOverOverlay = document.getElementById('gameOverOverlay');
-    gameOverOverlay.style.display = 'none';
+function showPeerGameOver() {
+    const gameOverOverlay = document.getElementById('peerGameOverOverlay');
+    gameOverOverlay.style.display = 'flex';
+
+    if (document.getElementById('gameOverOverlay').style.display !== 'flex') {
+        return;
+    }
+    showFinalGameResult();
+}
+
+function showFinalGameResult() {
+    const overlay = document.getElementById('resultOverlay');
+    document.getElementById('yourNickname').textContent = player.name;
+    document.getElementById('opponentNickname').textContent = peerGameResult.nickname;
+    document.getElementById('yourScore').textContent = playerScore;
+    document.getElementById('resultOpponentScore').textContent = peerGameResult.score;
+
+    const selfScore = Number(playerScore);
+    const peerScore = Number(peerGameResult.score);
+    console.log("-------->>>player score:", selfScore, "peer score:", peerScore, peerGameResult.score, "result:", selfScore > peerScore);
+    if (selfScore > peerScore) {
+        document.getElementById('matchResult').textContent = "你赢了！";
+    } else if (peerScore === peerScore) {
+        document.getElementById('matchResult').textContent = "打平了！";
+    } else {
+        document.getElementById('matchResult').textContent = "你输了！";
+    }
+
+    overlay.style.display = 'flex';
 }

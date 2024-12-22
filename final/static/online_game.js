@@ -162,9 +162,11 @@ function quitOnlineGame() {
 function signOut() {
     if (chatSocket) {
         chatSocket.close(3001, "quit manual");
+        chatSocket = null;
     }
     if (gameSocket) {
         gameSocket.close(3001, "quit manual");
+        gameSocket = null;
     }
 
     window.location.href = "index.html"

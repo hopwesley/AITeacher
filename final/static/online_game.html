@@ -79,7 +79,14 @@
         <div>
             <h3>对手的游戏</h3>
             <div class="opponent-area">
-                <canvas id="opponentCanvas" width="320" height="640"></canvas>
+
+                <div class="canvas-container">
+                    <canvas id="opponentCanvas" width="320" height="640"></canvas>
+                    <div class="game-over-overlay" id="peerGameOverOverlay">
+                        <h1>Game Over</h1>
+                    </div>
+                </div>
+
                 <div id="opponent-info-panel" class="info-panel">
                     <h3>分数</h3>
                     <p id="opponentScore" class="score">0</p>
