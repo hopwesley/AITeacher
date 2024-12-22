@@ -1,10 +1,6 @@
 package main
 
 const (
-	PlayerStatusIdle = iota
-	PlayerStatusInGame
-)
-const (
 	MsgTypChat = iota
 	MsgTypUserOnline
 	MsgTypUserOffline
@@ -15,6 +11,11 @@ const (
 	MsgTypeRejectGame
 	MsgTypePing = 100
 	MsgTypePong = 101
+)
+
+const (
+	PlayerStatusIdle = iota
+	PlayerStatusInGame
 )
 
 const (

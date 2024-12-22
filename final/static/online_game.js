@@ -149,9 +149,14 @@ function showGameBoard() {
     document.getElementById('battleContainer').style.display = 'flex'; // 显示对战界面
 }
 
-function quitOnlineGame() {
+function hideGameBoard() {
     document.querySelector('.container').style.display = 'flex'; // 隐藏好友列表界面
     document.getElementById('battleContainer').style.display = 'none'; // 显示对战界面
+}
+
+function quitOnlineGame() {
+    hideGameBoard();
+    //TODO peer is wining;
 }
 
 function signOut() {

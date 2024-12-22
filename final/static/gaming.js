@@ -71,8 +71,7 @@ function Gaming(message) {
 }
 
 function GameOvering(data) {
-    playerGameRender.endRendering();
-    peerGameRender.endRendering();
+    displayGameResult(data);
 }
 
 function frameUpdate(time = 0) {
@@ -137,17 +136,23 @@ function processScore(lines) {
 
 function gameOver() {
     playerGameRender.endRendering();
+    peerGameRender.endRendering();
     stopAnimation();
-    displayGameResult();
     sendGameResult();
     stopBackgroundMusic().then();
 }
 
-function displayGameResult() {
+function displayGameResult(data) {
+    const overlay = document.getElementById('resultOverlay');
+    document.getElementById('yourNickname').textContent = player.name;
+    document.getElementById('opponentNickname').textContent = data.peerName;
+    document.getElementById('yourScore').textContent = playerScore;
+    document.getElementById('opponentScore').textContent = data.peerScore;
+    document.getElementById('matchResult').textContent = data.Result;
+    overlay.style.display = 'flex';
 }
 
 function sendGameResult() {
-
 }
 
 function keyToAction(key) {
@@ -171,4 +176,9 @@ function handleKeyPress(event) {
     const action = keyToAction(event.key)
     const linesCleared = playerGameRender.keyAction(action);
     processScore(linesCleared);
+}
+
+function closeResult(){
+    const overlay = document.getElementById('resultOverlay');
+    overlay.style.display = 'none';
 }

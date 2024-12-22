@@ -107,6 +107,16 @@ func reading(conn *ChatConn) {
 	}
 }
 
+func writeToId(receiverID string, msg *ChatMsg) {
+	pLock.RLock()
+	defer pLock.RUnlock()
+	peerConn, ok := connCache[receiverID]
+	if !ok {
+		return
+	}
+	_ = peerConn.WriteJSON(msg)
+}
+
 func write(conn *ChatConn, msg *ChatMsg) {
 	err := conn.WriteJSON(msg)
 	if err != nil {

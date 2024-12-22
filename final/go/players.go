@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+	"time"
 )
 
 var pLock sync.RWMutex
@@ -47,6 +48,34 @@ func cachePlayerInfo(player *PlayerInfo) {
 	pLock.Lock()
 	playerCache[player.UUID] = player
 	pLock.Unlock()
+}
+
+func changePlayerStatus(uuid string, status int) {
+	s := MsgTypeUserIdle
+	if status == PlayerStatusIdle {
+		s = MsgTypeUserIdle
+	} else {
+		s = MsgTypeInviteGame
+	}
+
+	statusMsg := &ChatMsg{
+		MID:  time.Now().Unix(),
+		From: "-1",
+		To:   uuid,
+		Msg:  "",
+		Typ:  s,
+	}
+
+	writeToId(uuid, statusMsg)
+
+	pLock.Lock()
+	defer pLock.Unlock()
+	player, ok := playerCache[uuid]
+	if !ok {
+		return
+	}
+
+	player.Status = status
 }
 
 func removePlayerInfo(cid string) {

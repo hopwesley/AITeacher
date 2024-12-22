@@ -110,6 +110,9 @@ func checkStartGame(room *GameRoom) {
 		From: "-1",
 		Seq:  -1,
 	}
+	for uuid, _ := range room.players {
+		changePlayerStatus(uuid, PlayerStatusInGame)
+	}
 }
 
 func readGameData(conn *websocket.Conn, room *GameRoom) {
@@ -181,6 +184,7 @@ func dismissGame(gameID string) {
 		delete(userToRoom, pid)
 		uLock.Unlock()
 		conn.Close()
+		changePlayerStatus(pid, PlayerStatusIdle)
 	}
 	delete(gameRoom, gameID)
 	close(room.msgChan)
