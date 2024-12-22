@@ -127,10 +127,10 @@ class GameRenderer {
                 playSound('drop');
                 const endDrop = this.currentTetromino.moveDown();
                 if (endDrop) {
+                    cleanLines = this.endDrop();
                     if (this.actCallback) {
                         this.actCallback.action(GameTyp.MergeBoard, JSON.stringify(this.currentTetromino));
                     }
-                    cleanLines = this.endDrop();
                 }else{
                     if (this.actCallback) {
                         this.actCallback.action(GameTyp.MainTetromino, JSON.stringify(this.currentTetromino));
