@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -90,8 +91,25 @@ func reading(conn *ChatConn) {
 			connLock.Unlock()
 			continue
 		}
-
 		receiverID := msg.To
+
+		if msg.Typ == MsgTypeInviteGame {
+			player := getPlayerInfo(receiverID)
+			log.Println("------>>> this is a invite message:", player)
+			if player.Status == PlayerStatusInGame {
+				declineMsg := &ChatMsg{
+					MID:  time.Now().Unix(),
+					From: "-1",
+					To:   msg.From,
+					Msg:  "对方在游戏中",
+					Typ:  MsgTypeRejectGame,
+				}
+				connLock.Lock()
+				write(conn, declineMsg)
+				connLock.Unlock()
+				continue
+			}
+		}
 
 		connLock.RLock()
 		peerConn, ok := chatConnCache[receiverID]

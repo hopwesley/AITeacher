@@ -91,7 +91,19 @@ func removePlayerInfo(cid string) {
 	delete(playerCache, cid)
 }
 
-func currentPlayer(w http.ResponseWriter, r *http.Request) {
+func getPlayerInfo(cid string) *PlayerInfo {
+	playerLock.Lock()
+	defer playerLock.Unlock()
+
+	player, ok := playerCache[cid]
+	if !ok {
+		return nil
+	}
+
+	return player
+}
+
+func currentPlayer(w http.ResponseWriter, _ *http.Request) {
 	playerLock.RLock()
 	playerLock.RUnlock()
 	fmt.Println("----->>>current player no:", len(playerCache))
