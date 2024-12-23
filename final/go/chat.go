@@ -14,21 +14,21 @@ type ChatConn struct {
 	cid string
 }
 
-var cLock sync.RWMutex
-var connCache = make(map[string]*ChatConn)
+var connLock sync.RWMutex
+var chatConnCache = make(map[string]*ChatConn)
 
-var mLock sync.RWMutex
+var msgLock sync.RWMutex
 var msgCache = make(map[int64]*ChatMsg)
 
 func chatConn(w http.ResponseWriter, r *http.Request, uuid string) *ChatConn {
 
-	cLock.RLock()
-	oldConn := connCache[uuid]
+	connLock.RLock()
+	oldConn := chatConnCache[uuid]
 	if oldConn != nil {
 		oldConn.Close()
 		fmt.Printf("------>>>Old Player disconnected: %+v\n", oldConn.cid)
 	}
-	cLock.RUnlock()
+	connLock.RUnlock()
 
 	conn, err := upGrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -40,19 +40,19 @@ func chatConn(w http.ResponseWriter, r *http.Request, uuid string) *ChatConn {
 		Conn: conn,
 		cid:  uuid,
 	}
-	cLock.Lock()
-	connCache[uuid] = chatConn
-	cLock.Unlock()
+	connLock.Lock()
+	chatConnCache[uuid] = chatConn
+	connLock.Unlock()
 
 	return chatConn
 }
 
 func closeChatConn(conn *ChatConn) {
 	removePlayerInfo(conn.cid)
-	cLock.Lock()
-	defer cLock.Unlock()
+	connLock.Lock()
+	defer connLock.Unlock()
 	conn.Close()
-	delete(connCache, conn.cid)
+	delete(chatConnCache, conn.cid)
 	fmt.Println("------>>> close connection:", conn.cid)
 }
 
@@ -85,36 +85,39 @@ func reading(conn *ChatConn) {
 		//fmt.Println("------>>> read message:", msg)
 		if msg.Typ == MsgTypePing {
 			msg.Typ = MsgTypePong
+			connLock.Lock()
 			write(conn, &msg)
+			connLock.Unlock()
 			continue
 		}
 
 		receiverID := msg.To
 
-		playerLock.RLock()
-		peerConn, ok := connCache[receiverID]
+		connLock.RLock()
+		peerConn, ok := chatConnCache[receiverID]
 		if !ok {
-			mLock.Lock()
+			msgLock.Lock()
 			msgCache[msg.MID] = &msg
-			mLock.Unlock()
+			msgLock.Unlock()
 
-			playerLock.RUnlock()
+			connLock.RUnlock()
 			continue
 		}
-		playerLock.RUnlock()
+		connLock.RUnlock()
 
+		connLock.Lock()
 		write(peerConn, &msg)
+		connLock.Unlock()
+
 	}
 }
 
-func writeToId(receiverID string, msg *ChatMsg) {
-	playerLock.RLock()
-	defer playerLock.RUnlock()
-	peerConn, ok := connCache[receiverID]
-	if !ok {
-		return
+func broadcastUserStatus(msg *ChatMsg) {
+	connLock.Lock()
+	defer connLock.Unlock()
+	for _, conn := range chatConnCache {
+		_ = conn.WriteJSON(msg)
 	}
-	_ = peerConn.WriteJSON(msg)
 }
 
 func write(conn *ChatConn, msg *ChatMsg) {
@@ -132,8 +135,8 @@ func notifyOnOffLine(player *PlayerInfo, typ int) {
 		return
 	}
 
-	cLock.Lock()
-	defer cLock.Unlock()
+	connLock.Lock()
+	defer connLock.Unlock()
 
 	bts, _ := json.Marshal(player)
 	msg := &ChatMsg{
@@ -144,7 +147,7 @@ func notifyOnOffLine(player *PlayerInfo, typ int) {
 		Typ:  typ,
 	}
 
-	for _, conn := range connCache {
+	for _, conn := range chatConnCache {
 		if conn.cid == player.UUID {
 			continue
 		}

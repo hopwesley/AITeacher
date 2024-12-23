@@ -43,9 +43,9 @@ const MsgTyp = {
     UserOffline: 2,
     UserInGame: 3,
     UserIdle: 4,
-    InviteGame: 7,
-    AcceptGame: 8,
-    RejectGame: 9,
+    InviteGame: 5,
+    AcceptGame: 6,
+    RejectGame: 7,
     Ping: 100,
     Pong: 101,
 };

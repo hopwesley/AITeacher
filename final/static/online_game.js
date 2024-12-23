@@ -77,6 +77,7 @@ function selectFriend(element, obj) {
     document.getElementById('friendHighScore').textContent = obj.score;
     const chatMessages = document.getElementById('chatMessages');
     chatMessages.innerHTML = "";
+    console.log('------>>>user is in idle?:',element.dataset.isIdle)
 
     const historyChat = chatCache[obj.uuid];
     if (!historyChat) {
@@ -192,13 +193,14 @@ function userOnOffLine(isOnline, player) {
 }
 
 function userStatusChanged(uuid, typ) {
-
+    console.log("------>>>uuid:", uuid, "typ:", typ)
     const friendList = document.getElementById("friend-list-ul");
     const element = friendList.querySelector(`[data-uuid="${uuid}"]`);
-    if (!element){
+    if (!element) {
         return;
     }
     element.querySelector(".friend_status").textContent = typ === MsgTyp.UserIdle ? "状态: 空闲" : "状态: 游戏中";
+    element.dataset.isIdle = typ === MsgTyp.UserIdle ? 'true' : "false";
 }
 
 function newMsg(chatMsg) {

@@ -112,8 +112,10 @@ func checkStartGame(room *GameRoom) {
 		From: "-1",
 		Seq:  -1,
 	}
+
 	for uuid, _ := range room.players {
-		changePlayerStatus(uuid, PlayerStatusInGame)
+		var uid = uuid
+		changePlayerStatus(uid, PlayerStatusInGame)
 	}
 }
 

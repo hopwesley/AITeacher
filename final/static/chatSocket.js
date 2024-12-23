@@ -7,7 +7,7 @@ class ChatCallback extends WebSocketCallback {
 
     OnMessage(data) {
         super.OnMessage(data);
-
+        console.log("----->>> chat message", data);
         const msg = new ChatMsg(data.mid, data.from, data.to, data.msg, data.typ);
         if (msg.typ === MsgTyp.UserOnline || msg.typ === MsgTyp.UserOffline) {
             const playerInfo = JSON.parse(data.msg);
@@ -20,8 +20,7 @@ class ChatCallback extends WebSocketCallback {
         }else if (msg.typ === MsgTyp.AcceptGame ||msg.typ === MsgTyp.RejectGame){
             GameInviteResult(msg);
         }else if (msg.typ === MsgTyp.UserIdle || msg.typ === MsgTyp.UserInGame){
-            console.log("----->>> user status changed:", msg)
-            userStatusChanged(data.to, msg.typ);
+            userStatusChanged(data.msg, msg.typ);
         }
     }
 

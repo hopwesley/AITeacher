@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"sync"
@@ -52,24 +51,23 @@ func cachePlayerInfo(player *PlayerInfo) {
 }
 
 func changePlayerStatus(uuid string, status int) {
-	log.Println("------>>> broad cast user status:", uuid, status)
 
 	s := MsgTypeUserIdle
 	if status == PlayerStatusIdle {
 		s = MsgTypeUserIdle
 	} else {
-		s = MsgTypeInviteGame
+		s = MsgTypeUserInGame
 	}
 
 	statusMsg := &ChatMsg{
 		MID:  time.Now().Unix(),
 		From: "-1",
-		To:   uuid,
-		Msg:  "",
+		To:   "0",
+		Msg:  uuid,
 		Typ:  s,
 	}
 
-	writeToId(uuid, statusMsg)
+	go broadcastUserStatus(statusMsg)
 
 	playerLock.Lock()
 	defer playerLock.Unlock()
