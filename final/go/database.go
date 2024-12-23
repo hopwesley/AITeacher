@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/syndtr/goleveldb/leveldb"
 	"time"
 )
@@ -27,6 +28,9 @@ func SignInOrUp(uuid, pName string) (*PlayerInfo, error) {
 	data, err := _dbInst.Get(key, nil)
 
 	if err != nil {
+		if !errors.Is(err, leveldb.ErrNotFound) {
+			return nil, err
+		}
 		var player = &PlayerInfo{
 			PlayerName: pName,
 			UUID:       uuid,
@@ -53,4 +57,31 @@ func SignInOrUp(uuid, pName string) (*PlayerInfo, error) {
 	}
 
 	return &player, nil
+}
+
+func updateHighestScoreDb(uuid string, score int) error {
+
+	key := playerDBKey(uuid)
+	data, err := _dbInst.Get(key, nil)
+	if err != nil {
+		return err
+	}
+	var player PlayerInfo
+	err = json.Unmarshal(data, &player)
+	if err != nil {
+		return err
+	}
+
+	if player.HighScore > score {
+		return nil
+	}
+
+	player.HighScore = score
+	bts, err := json.Marshal(player)
+	if err != nil {
+		return err
+	}
+	err = _dbInst.Put(key, bts, nil)
+
+	return err
 }

@@ -191,6 +191,16 @@ function userOnOffLine(isOnline, player) {
     friendList.append(clone);
 }
 
+function userStatusChanged(uuid, typ) {
+
+    const friendList = document.getElementById("friend-list-ul");
+    const element = friendList.querySelector(`[data-uuid="${uuid}"]`);
+    if (!element){
+        return;
+    }
+    element.querySelector(".friend_status").textContent = typ === MsgTyp.UserIdle ? "状态: 空闲" : "状态: 游戏中";
+}
+
 function newMsg(chatMsg) {
     cacheData(chatMsg.from, chatMsg);
     const currentPeer = document.getElementById('friendId').textContent.trim();

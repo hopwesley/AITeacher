@@ -3,13 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"sync"
 	"time"
 )
 
-var pLock sync.RWMutex
+var playerLock sync.RWMutex
 var playerCache = make(map[string]*PlayerInfo)
 
 func newPlayer(w http.ResponseWriter, r *http.Request) *PlayerInfo {
@@ -45,12 +46,14 @@ func newPlayer(w http.ResponseWriter, r *http.Request) *PlayerInfo {
 }
 
 func cachePlayerInfo(player *PlayerInfo) {
-	pLock.Lock()
+	playerLock.Lock()
 	playerCache[player.UUID] = player
-	pLock.Unlock()
+	playerLock.Unlock()
 }
 
 func changePlayerStatus(uuid string, status int) {
+	log.Println("------>>> broad cast user status:", uuid, status)
+
 	s := MsgTypeUserIdle
 	if status == PlayerStatusIdle {
 		s = MsgTypeUserIdle
@@ -68,8 +71,8 @@ func changePlayerStatus(uuid string, status int) {
 
 	writeToId(uuid, statusMsg)
 
-	pLock.Lock()
-	defer pLock.Unlock()
+	playerLock.Lock()
+	defer playerLock.Unlock()
 	player, ok := playerCache[uuid]
 	if !ok {
 		return
@@ -79,8 +82,8 @@ func changePlayerStatus(uuid string, status int) {
 }
 
 func removePlayerInfo(cid string) {
-	pLock.Lock()
-	defer pLock.Unlock()
+	playerLock.Lock()
+	defer playerLock.Unlock()
 
 	player := playerCache[cid]
 	if player == nil {
@@ -91,15 +94,19 @@ func removePlayerInfo(cid string) {
 }
 
 func currentPlayer(w http.ResponseWriter, r *http.Request) {
-	pLock.RLock()
-	pLock.RUnlock()
-	fmt.Println("current player no:", len(playerCache))
+	playerLock.RLock()
+	playerLock.RUnlock()
+	fmt.Println("----->>>current player no:", len(playerCache))
 	bts, _ := json.Marshal(playerCache)
 	_, _ = w.Write(bts)
 }
 
-func getPlayer(uuid string) *PlayerInfo {
-	pLock.RLock()
-	defer pLock.RUnlock()
-	return playerCache[uuid]
+func updateHighestScore(uuid string, score int) error {
+	playerLock.Lock()
+	defer playerLock.Unlock()
+	player, ok := playerCache[uuid]
+	if ok && player.HighScore > score {
+		return nil
+	}
+	return updateHighestScoreDb(uuid, score)
 }

@@ -91,25 +91,25 @@ func reading(conn *ChatConn) {
 
 		receiverID := msg.To
 
-		pLock.RLock()
+		playerLock.RLock()
 		peerConn, ok := connCache[receiverID]
 		if !ok {
 			mLock.Lock()
 			msgCache[msg.MID] = &msg
 			mLock.Unlock()
 
-			pLock.RUnlock()
+			playerLock.RUnlock()
 			continue
 		}
-		pLock.RUnlock()
+		playerLock.RUnlock()
 
 		write(peerConn, &msg)
 	}
 }
 
 func writeToId(receiverID string, msg *ChatMsg) {
-	pLock.RLock()
-	defer pLock.RUnlock()
+	playerLock.RLock()
+	defer playerLock.RUnlock()
 	peerConn, ok := connCache[receiverID]
 	if !ok {
 		return

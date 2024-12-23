@@ -25,7 +25,7 @@ const (
 	NewScore
 	NewLevel
 	MergeBoard
-	GameOver = 10
+	GameOver
 )
 
 type PlayerInfo struct {

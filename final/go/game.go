@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
+	"log"
 	"net/http"
 	"sync"
 )
@@ -13,22 +15,22 @@ type GameRoom struct {
 	msgChan chan *GameMsg
 }
 
-var gLock sync.RWMutex
+var gameLock sync.RWMutex
 var gameRoom = make(map[string]*GameRoom)
 
-var uLock sync.RWMutex
+var roomLock sync.RWMutex
 var userToRoom = make(map[string]string)
 
 func checkDuplicateGameJoin(gj *GameJoin) {
-	uLock.Lock()
-	defer uLock.Unlock()
+	roomLock.Lock()
+	defer roomLock.Unlock()
 	gameID := userToRoom[gj.PlayerID]
 	if len(gameID) == 0 {
 		return
 	}
 
-	gLock.Lock()
-	defer gLock.Unlock()
+	gameLock.Lock()
+	defer gameLock.Unlock()
 	room := gameRoom[gameID]
 	conn := room.players[gj.PlayerID]
 	if conn == nil {
@@ -40,8 +42,8 @@ func checkDuplicateGameJoin(gj *GameJoin) {
 }
 
 func enterGame(conn *websocket.Conn, gj *GameJoin) *GameRoom {
-	gLock.Lock()
-	defer gLock.Unlock()
+	gameLock.Lock()
+	defer gameLock.Unlock()
 
 	room := gameRoom[gj.GameID]
 	if room == nil {
@@ -55,9 +57,9 @@ func enterGame(conn *websocket.Conn, gj *GameJoin) *GameRoom {
 
 	room.players[gj.PlayerID] = conn
 
-	uLock.Lock()
+	roomLock.Lock()
 	userToRoom[gj.PlayerID] = gj.GameID
-	uLock.Unlock()
+	roomLock.Unlock()
 
 	return room
 }
@@ -130,10 +132,28 @@ func readGameData(conn *websocket.Conn, room *GameRoom) {
 			room.msgChan <- &msg
 			continue
 		}
-
+		if msg.Typ == GameOver {
+			updatePlayerMaxScore(msg)
+		}
 		//fmt.Println("------>>> read game message:", msg)
 
 		room.msgChan <- &msg
+	}
+}
+
+func updatePlayerMaxScore(msg GameMsg) {
+	var player PlayerInfo
+	err := json.Unmarshal([]byte(msg.Data), &player)
+	if err != nil {
+		fmt.Println("invalid game over data:", err)
+		return
+	}
+
+	log.Println("------>>> prepare update max score of user:", player)
+	err = updateHighestScore(player.UUID, player.HighScore)
+	if err != nil {
+		fmt.Println("update highest score failed", err)
+		return
 	}
 }
 
@@ -171,8 +191,8 @@ func asyncBroadCaster(room *GameRoom) {
 }
 
 func dismissGame(gameID string) {
-	gLock.Lock()
-	defer gLock.Unlock()
+	gameLock.Lock()
+	defer gameLock.Unlock()
 
 	room := gameRoom[gameID]
 	if room == nil {
@@ -180,9 +200,9 @@ func dismissGame(gameID string) {
 	}
 
 	for pid, conn := range room.players {
-		uLock.Lock()
+		roomLock.Lock()
 		delete(userToRoom, pid)
-		uLock.Unlock()
+		roomLock.Unlock()
 		conn.Close()
 		changePlayerStatus(pid, PlayerStatusIdle)
 	}

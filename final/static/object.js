@@ -82,7 +82,5 @@ const GameTyp = {
     NewScore:3,
     NewLevel:4,
     MergeBoard:5,
-    ResultScore:6,
-
-    GameOver: 10,
+    GameOver:6,
 };

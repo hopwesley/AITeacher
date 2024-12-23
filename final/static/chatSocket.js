@@ -19,6 +19,9 @@ class ChatCallback extends WebSocketCallback {
             gotGameInvite(msg);
         }else if (msg.typ === MsgTyp.AcceptGame ||msg.typ === MsgTyp.RejectGame){
             GameInviteResult(msg);
+        }else if (msg.typ === MsgTyp.UserIdle || msg.typ === MsgTyp.UserInGame){
+            console.log("----->>> user status changed:", msg)
+            userStatusChanged(data.to, msg.typ);
         }
     }
 
