@@ -1,6 +1,6 @@
-let gameSocket;
-let chatSocket;
-let player;
+let gameSocket = null;
+let chatSocket = null;
+let player = null;
 
 const chatCache = new Map();
 document.addEventListener('DOMContentLoaded', () => {
@@ -156,7 +156,10 @@ function hideGameBoard() {
 
 function quitOnlineGame() {
     hideGameBoard();
-    //TODO peer is wining;
+    if (gameSocket) {
+        gameSocket.close(3002, "escape from game")
+        gameSocket = null;
+    }
 }
 
 function signOut() {

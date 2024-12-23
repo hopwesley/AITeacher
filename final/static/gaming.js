@@ -19,13 +19,40 @@ class SelfGameCallback extends GameActionListener {
     }
 }
 
+function peerSocketClosed(){
+    alert("对手离线了");
+    playerGameRender.endRendering();
+    stopAnimation();
+    stopBackgroundMusic().then();
+    hideGameBoard();
+    gameSocket.close(3002, "game over");
+    gameSocket = null;
+}
+
 function sendGameMsg(typ, data) {
-    Sequence++;
-    const msg = new GameMsg(typ, data, player.uuid, Sequence);
-    gameSocket.send(JSON.stringify(msg));
+    try {
+        if (!gameSocket){
+            return;
+        }
+
+        if (gameSocket.readyState !== WebSocket.OPEN) {
+            peerSocketClosed();
+            return;
+        }
+
+        Sequence++;
+        const msg = new GameMsg(typ, data, player.uuid, Sequence);
+        gameSocket.send(JSON.stringify(msg));
+    }catch (e) {
+        console.log("------>>> error:",e)
+    }
 }
 
 function GameStarting(msg) {
+
+    document.getElementById('peerGameOverOverlay').style.display = 'none';
+    document.getElementById('gameOverOverlay').style.display = 'none';
+
     initLevelAndScore();
 
     const canvas = document.getElementById('playerCanvas');
